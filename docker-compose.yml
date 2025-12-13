@@ -5,6 +5,12 @@ services:
     working_dir: /var/www
     volumes:
       - .:/var/www
+    environment:
+      - XDEBUG_MODE=debug
+      - XDEBUG_HOST=host.docker.internal
+      - XDEBUG_PORT=9003
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - app_network
 
