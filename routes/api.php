@@ -15,4 +15,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/travel-orders', [TravelOrderController::class, 'store']);
     Route::get('/travel-orders', [TravelOrderController::class, 'index']);
     Route::get('/travel-orders/{id}', [TravelOrderController::class, 'show']);
+
+    Route::middleware('admin')->group(function () {
+        Route::post('/users/promote-to-admin', [AuthController::class, 'promoteToAdmin']);
+    });
 });
