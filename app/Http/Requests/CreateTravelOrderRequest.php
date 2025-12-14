@@ -16,14 +16,13 @@ class CreateTravelOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'exists:users,id'],
             'destination' => ['required', 'string'],
             'departure_date' => ['required', 'date'],
             'return_date' => ['required', 'date', 'after_or_equal:departure_date'],
         ];
     }
 
-  protected function failedValidation(Validator $validator): void
+    protected function failedValidation(Validator $validator): void
     {
         throw new HttpResponseException(response()->json([
             'errors' => $validator->errors()
