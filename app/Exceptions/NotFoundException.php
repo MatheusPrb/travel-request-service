@@ -4,7 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 
-class InvalidTravelDatesException extends Exception
+class NotFoundException extends Exception
 {
     public function __construct(string $message)
     {

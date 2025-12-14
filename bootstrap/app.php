@@ -1,6 +1,8 @@
 <?php
 
+use App\Constants\Messages;
 use App\Exceptions\InvalidTravelDatesException;
+use App\Exceptions\NotFoundException;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -31,13 +33,19 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (TokenExpiredException|TokenInvalidException|JWTException|AuthenticationException $e) {
             return response()->json([
-                'error' => 'Token inválido ou expirado'
+                'error' => Messages::INVALID_TOKEN
             ], 401);
         });
 
         $exceptions->render(function (InvalidTravelDatesException $e) {
             return response()->json([
-                'error' => 'Data de volta não pode ser antes da ida.'
+                'error' => $e->getMessage()
             ], 422);
+        });
+
+        $exceptions->render(function (NotFoundException $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 404);
         });
     })->create();

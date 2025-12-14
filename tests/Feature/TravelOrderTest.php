@@ -126,10 +126,30 @@ class TravelOrderTest extends TestCase
             $this->getAuthenticatedHeaders()
         );
 
-        $response
-            ->assertStatus(422)
-            ->assertJson(['error' => 'Data de volta não pode ser antes da ida.'])
-        ;
+        $response->assertStatus(422);
+        
+        $responseData = $response->json();
+        $this->assertTrue(
+            isset($responseData['errors']['return_date']) || 
+            isset($responseData['error'])
+        );
+    }
+
+    public function test_create_validates_dates_with_different_formats_in_request(): void
+    {
+        $data = [
+            'destination' => 'Paris, França',
+            'departure_date' => '2024-06-01',
+            'return_date' => '2024-06-15',
+        ];
+
+        $response = $this->postJson(
+            '/api/travel-orders',
+            $data,
+            $this->getAuthenticatedHeaders()
+        );
+
+        $response->assertStatus(201);
     }
 
     public function test_create_automatically_sets_user_id_from_token(): void

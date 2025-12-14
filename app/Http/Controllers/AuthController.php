@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Messages;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\PromoteUserToAdminRequest;
 use App\Http\Requests\RegisterRequest;
@@ -21,7 +22,6 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-
         return response()->json(new AuthResource($user), 201);
     }
 
@@ -31,7 +31,7 @@ class AuthController extends Controller
 
         if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json([
-                'error' => 'Credenciais inválidas'
+                'error' => Messages::INVALID_CREDENTIALS
             ], 401);
         }
 
@@ -48,7 +48,7 @@ class AuthController extends Controller
         JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json([
-            'message' => 'Logout realizado com sucesso'
+            'message' => Messages::LOGOUT_SUCCESS
         ]);
     }
 
@@ -62,12 +62,14 @@ class AuthController extends Controller
         $user = User::findOrFail($request->user_id);
 
         if ($user->isAdmin()) {
-            return response()->json(['message' => 'Usuário já é administrador.'], 200);
+            return response()->json(['message' => Messages::USER_ALREADY_ADMIN], 200);
         }
 
-        $user->makeAdmin();
+        if (!$user->makeAdmin()) {
+            return response()->json(['error' => Messages::USER_PROMOTION_FAILED], 500);
+        }
 
-        return response()->json(['message' => 'Usuário promovido a administrador com sucesso.'], 200);
+        return response()->json(['message' => Messages::USER_PROMOTED_TO_ADMIN], 200);
     }
 
     protected function respondWithToken(string $token): JsonResponse
