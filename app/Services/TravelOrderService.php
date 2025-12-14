@@ -2,16 +2,17 @@
 
 namespace App\Services;
 
-use App\Repositories\TravelOrderRepository;
+use App\Contracts\TravelOrderRepositoryInterface;
+use App\Exceptions\InvalidTravelDatesException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Symfony\Component\HttpFoundation\Response;
 
 class TravelOrderService
 {
-    private TravelOrderRepository $repository;
+    private TravelOrderRepositoryInterface $repository;
 
-    public function __construct(TravelOrderRepository $repository) 
+    public function __construct(TravelOrderRepositoryInterface $repository) 
     {
         $this->repository = $repository;
     }
@@ -19,7 +20,7 @@ class TravelOrderService
     public function create(array $data)
     {
         if ($data['departure_date'] > $data['return_date']) {
-            throw new \Exception('Data de volta não pode ser antes da ida.');
+            throw new InvalidTravelDatesException();
         }
 
         return $this->repository->create($data);
