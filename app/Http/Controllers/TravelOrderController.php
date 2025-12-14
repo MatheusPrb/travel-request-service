@@ -27,4 +27,18 @@ class TravelOrderController extends Controller
 
         return response()->json(new TravelOrderResource($order), 201);
     }
+
+    public function index(Request $request): JsonResponse
+    {
+        $orders = $this->service->listByUser(auth('api')->id(), $request->all());
+
+        return response()->json(TravelOrderResource::collection($orders));
+    }
+
+    public function show(string $id): JsonResponse
+    {
+        $order = $this->service->findById($id, auth('api')->id());
+
+        return response()->json(new TravelOrderResource($order));
+    }
 }
