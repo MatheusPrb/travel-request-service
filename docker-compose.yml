@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/var/www
     environment:
-      - XDEBUG_MODE=debug
+      - XDEBUG_MODE=debug,coverage
       - XDEBUG_HOST=host.docker.internal
       - XDEBUG_PORT=9003
     extra_hosts:
