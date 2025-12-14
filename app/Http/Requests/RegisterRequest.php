@@ -2,11 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-
-class RegisterRequest extends FormRequest
+class RegisterRequest extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -33,13 +29,6 @@ class RegisterRequest extends FormRequest
             'password.min' => 'A senha deve ter no mínimo 6 caracteres',
             'password.confirmed' => 'A confirmação de senha não confere',
         ];
-    }
-
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(response()->json([
-            'errors' => $validator->errors()
-        ], 422));
     }
 }
 

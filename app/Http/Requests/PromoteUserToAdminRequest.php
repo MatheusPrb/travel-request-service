@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class PromoteUserToAdminRequest extends FormRequest
+class PromoteUserToAdminRequest extends BaseFormRequest
 {
     public function authorize(): bool
     {

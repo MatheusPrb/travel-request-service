@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Constants\Messages;
 use App\Contracts\TravelOrderRepositoryInterface;
+use App\Exceptions\CannotCancelApprovedOrderException;
 use App\Exceptions\InvalidTravelDatesException;
 use App\Exceptions\NotFoundException;
 use App\Models\TravelOrder;
@@ -43,5 +44,16 @@ class TravelOrderService
         }
 
         return $this->repository->findById($id);
+    }
+
+    public function updateStatus(string $id, string $newStatus): TravelOrder
+    {
+        $travelOrder = $this->repository->findById($id);
+
+        if ($newStatus === 'cancelado' && $travelOrder->status === 'aprovado') {
+            throw new CannotCancelApprovedOrderException(Messages::CANNOT_CANCEL_APPROVED_ORDER);
+        }
+
+        return $this->repository->update($travelOrder, ['status' => $newStatus]);
     }
 }

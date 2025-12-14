@@ -18,5 +18,6 @@ Route::middleware('auth:api')->group(function () {
 
     Route::middleware('admin')->group(function () {
         Route::post('/users/promote-to-admin', [AuthController::class, 'promoteToAdmin']);
+        Route::patch('/travel-orders/{id}/status', [TravelOrderController::class, 'updateStatus']);
     });
 });

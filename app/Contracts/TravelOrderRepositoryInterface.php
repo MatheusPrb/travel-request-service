@@ -12,4 +12,5 @@ interface TravelOrderRepositoryInterface
     public function findById(string $id): TravelOrder;
     public function findByUserId(string $userId, array $filters = []): Collection|LengthAwarePaginator;
     public function belongsToUser(string $id, string $userId): bool;
+    public function update(TravelOrder $travelOrder, array $data): TravelOrder;
 }
