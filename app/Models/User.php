@@ -28,6 +28,8 @@ class User extends Authenticatable implements JWTSubject
         'password',
     ];
 
+    protected $guarded = ['is_admin'];
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Constants\Messages;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class EnsureUserIsAdmin
         $user = auth('api')->user();
 
         if (!$user?->fresh()?->isAdmin()) {
-            return response()->json(['error' => 'Acesso negado. Apenas administradores podem realizar esta ação.'], 403);
+            return response()->json(['error' => Messages::UNAUTHORIZED_ACCESS], 403);
         }
 
         return $next($request);

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Constants\Messages;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -24,7 +25,7 @@ class AdminPromoteUserTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJson(['message' => 'Usuário promovido a administrador com sucesso.'])
+            ->assertJson(['message' => Messages::USER_PROMOTED_TO_ADMIN])
         ;
 
         $this->assertTrue($userToPromote->fresh()->isAdmin());
@@ -85,7 +86,7 @@ class AdminPromoteUserTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJson(['message' => 'Usuário já é administrador.'])
+            ->assertJson(['message' => Messages::USER_ALREADY_ADMIN])
         ;
 
         $this->assertTrue($alreadyAdmin->fresh()->isAdmin());
@@ -150,7 +151,7 @@ class AdminPromoteUserTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJson(['message' => 'Usuário já é administrador.'])
+            ->assertJson(['message' => Messages::USER_ALREADY_ADMIN])
         ;
     }
 }

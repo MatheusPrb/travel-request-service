@@ -2,12 +2,13 @@
 
 namespace Tests\Unit;
 
+use App\Constants\Messages;
 use App\Contracts\TravelOrderRepositoryInterface;
 use App\Exceptions\InvalidTravelDatesException;
+use App\Exceptions\NotFoundException;
 use App\Models\TravelOrder;
 use App\Services\TravelOrderService;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Mockery;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -67,9 +68,68 @@ class TravelOrderServiceTest extends TestCase
         ];
 
         $this->expectException(InvalidTravelDatesException::class);
-        $this->expectExceptionMessage('Data de volta não pode ser antes da ida.');
+        $this->expectExceptionMessage(Messages::INVALID_TRAVEL_DATES);
 
         $this->service->create($data);
+    }
+
+    public function test_create_validates_dates_with_different_formats(): void
+    {
+        $user = $this->createAuthenticatedUser();
+        
+        $data = [
+            'user_id' => $user['user']->id,
+            'destination' => 'Paris, França',
+            'departure_date' => 'June 15, 2024',
+            'return_date' => 'June 1, 2024',
+        ];
+
+        $this->expectException(InvalidTravelDatesException::class);
+        $this->expectExceptionMessage(Messages::INVALID_TRAVEL_DATES);
+
+        $this->service->create($data);
+    }
+
+    public function test_create_validates_dates_with_slash_format(): void
+    {
+        $user = $this->createAuthenticatedUser();
+        
+        $data = [
+            'user_id' => $user['user']->id,
+            'destination' => 'Paris, França',
+            'departure_date' => '06/15/2024',
+            'return_date' => '06/01/2024',
+        ];
+
+        $this->expectException(InvalidTravelDatesException::class);
+        $this->expectExceptionMessage(Messages::INVALID_TRAVEL_DATES);
+
+        $this->service->create($data);
+    }
+
+    public function test_create_accepts_valid_dates_with_different_formats(): void
+    {
+        $user = $this->createAuthenticatedUser();
+        
+        $data = [
+            'user_id' => $user['user']->id,
+            'destination' => 'Paris, França',
+            'departure_date' => 'June 1, 2024',
+            'return_date' => 'June 15, 2024',
+        ];
+
+        $travelOrder = TravelOrder::factory()->make($data);
+
+        $this->repository
+            ->shouldReceive('create')
+            ->once()
+            ->with($data)
+            ->andReturn($travelOrder)
+        ;
+
+        $result = $this->service->create($data);
+
+        $this->assertInstanceOf(TravelOrder::class, $result);
     }
 
     public function test_list_by_user_returns_only_user_orders(): void
@@ -156,7 +216,8 @@ class TravelOrderServiceTest extends TestCase
             ->andReturn(false)
         ;
 
-        $this->expectException(HttpResponseException::class);
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage(Messages::TRAVEL_ORDER_NOT_FOUND);
 
         $this->service->findById($travelOrderId, $user['user']->id);
     }
@@ -173,7 +234,8 @@ class TravelOrderServiceTest extends TestCase
             ->andReturn(false)
         ;
 
-        $this->expectException(HttpResponseException::class);
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage(Messages::TRAVEL_ORDER_NOT_FOUND);
 
         $this->service->findById($nonExistentId, $user['user']->id);
     }

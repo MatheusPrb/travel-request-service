@@ -18,7 +18,7 @@ class CreateTravelOrderRequest extends FormRequest
         return [
             'destination' => ['required', 'string'],
             'departure_date' => ['required', 'date'],
-            'return_date' => ['required', 'date'],
+            'return_date' => ['required', 'date', 'after_or_equal:departure_date'],
         ];
     }
 

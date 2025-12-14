@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Constants\Messages;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -35,7 +36,7 @@ class AdminMiddlewareTest extends TestCase
 
         $response
             ->assertStatus(403)
-            ->assertJson(['error' => 'Acesso negado. Apenas administradores podem realizar esta ação.'])
+            ->assertJson(['error' => Messages::UNAUTHORIZED_ACCESS])
         ;
     }
 
