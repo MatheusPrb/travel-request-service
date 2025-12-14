@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\PromoteUserToAdminRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\AuthResource;
 use App\Models\User;
@@ -54,6 +55,19 @@ class AuthController extends Controller
     public function refresh(): JsonResponse
     {
         return $this->respondWithToken(JWTAuth::refresh(JWTAuth::getToken()));
+    }
+
+    public function promoteToAdmin(PromoteUserToAdminRequest $request): JsonResponse
+    {
+        $user = User::findOrFail($request->user_id);
+
+        if ($user->isAdmin()) {
+            return response()->json(['message' => 'Usuário já é administrador.'], 200);
+        }
+
+        $user->makeAdmin();
+
+        return response()->json(['message' => 'Usuário promovido a administrador com sucesso.'], 200);
     }
 
     protected function respondWithToken(string $token): JsonResponse
