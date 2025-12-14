@@ -2,11 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Contracts\TravelOrderRepositoryInterface;
 use App\Models\TravelOrder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class TravelOrderRepository
+class TravelOrderRepository implements TravelOrderRepositoryInterface
 {
     public function create(array $data): TravelOrder
     {
@@ -53,6 +54,14 @@ class TravelOrderRepository
     {
         return TravelOrder::where('id', $id)
             ->where('user_id', $userId)
-            ->exists();
+            ->exists()
+        ;
+    }
+
+    public function update(TravelOrder $travelOrder, array $data): TravelOrder
+    {
+        $travelOrder->update($data);
+
+        return $travelOrder;
     }
 }

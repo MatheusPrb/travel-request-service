@@ -2,11 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator; 
-use Illuminate\Http\Exceptions\HttpResponseException;
-
-class CreateTravelOrderRequest extends FormRequest
+class CreateTravelOrderRequest extends BaseFormRequest
 {
     public function authorize(): bool
     {
@@ -20,12 +16,5 @@ class CreateTravelOrderRequest extends FormRequest
             'departure_date' => ['required', 'date'],
             'return_date' => ['required', 'date', 'after_or_equal:departure_date'],
         ];
-    }
-
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(response()->json([
-            'errors' => $validator->errors()
-        ], 422));
     }
 }

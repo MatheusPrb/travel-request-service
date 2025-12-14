@@ -2,24 +2,31 @@
 
 namespace App\Services;
 
-use App\Repositories\TravelOrderRepository;
+use App\Constants\Messages;
+use App\Contracts\TravelOrderRepositoryInterface;
+use App\Exceptions\CannotCancelApprovedOrderException;
+use App\Exceptions\InvalidTravelDatesException;
+use App\Exceptions\NotFoundException;
+use App\Models\TravelOrder;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Symfony\Component\HttpFoundation\Response;
 
 class TravelOrderService
 {
-    private TravelOrderRepository $repository;
+    private TravelOrderRepositoryInterface $repository;
 
-    public function __construct(TravelOrderRepository $repository) 
+    public function __construct(TravelOrderRepositoryInterface $repository) 
     {
         $this->repository = $repository;
     }
 
-    public function create(array $data)
+    public function create(array $data): TravelOrder
     {
-        if ($data['departure_date'] > $data['return_date']) {
-            throw new \Exception('Data de volta não pode ser antes da ida.');
+        $departureDate = Carbon::parse($data['departure_date']);
+        $returnDate = Carbon::parse($data['return_date']);
+
+        if ($departureDate->greaterThan($returnDate)) {
+            throw new InvalidTravelDatesException(Messages::INVALID_TRAVEL_DATES);
         }
 
         return $this->repository->create($data);
@@ -30,16 +37,23 @@ class TravelOrderService
         return $this->repository->findByUserId($userId, $filters);
     }
 
-    public function findById(string $id, string $userId)
+    public function findById(string $id, string $userId): TravelOrder
     {
         if (!$this->repository->belongsToUser($id, $userId)) {
-            throw new HttpResponseException(
-                response()->json([
-                    'error' => 'Pedido de viagem não encontrado ou você não tem permissão para acessá-lo'
-                ], Response::HTTP_NOT_FOUND)
-            );
+            throw new NotFoundException(Messages::TRAVEL_ORDER_NOT_FOUND);
         }
 
         return $this->repository->findById($id);
+    }
+
+    public function updateStatus(string $id, string $newStatus): TravelOrder
+    {
+        $travelOrder = $this->repository->findById($id);
+
+        if ($newStatus === 'cancelado' && $travelOrder->status === 'aprovado') {
+            throw new CannotCancelApprovedOrderException(Messages::CANNOT_CANCEL_APPROVED_ORDER);
+        }
+
+        return $this->repository->update($travelOrder, ['status' => $newStatus]);
     }
 }
