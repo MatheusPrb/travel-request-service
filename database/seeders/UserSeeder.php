@@ -40,11 +40,15 @@ class UserSeeder extends Seeder
             ],
         ];
 
-        foreach ($users as $user) {
-            User::firstOrCreate(
-                ['email' => $user['email']],
-                $user
+        foreach ($users as $index => $userData) {
+            $user = User::firstOrCreate(
+                ['email' => $userData['email']],
+                $userData
             );
+
+            if ($index === 0) {
+                $user->makeAdmin();
+            }
         }
 
         User::factory(10)->create();

@@ -14,7 +14,7 @@ class EnsureUserIsAdmin
         /** @var User|null $user */
         $user = auth('api')->user();
 
-        if (!$user->isAdmin()) {
+        if (!$user?->fresh()?->isAdmin()) {
             return response()->json(['error' => 'Acesso negado. Apenas administradores podem realizar esta ação.'], 403);
         }
 

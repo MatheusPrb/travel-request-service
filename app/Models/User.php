@@ -89,7 +89,9 @@ class User extends Authenticatable implements JWTSubject
      */
     public function makeAdmin(): bool
     {
-        return $this->update(['is_admin' => true]);
+        $this->is_admin = true;
+
+        return $this->save();
     }
 
     /**
@@ -99,6 +101,8 @@ class User extends Authenticatable implements JWTSubject
      */
     public function removeAdmin(): bool
     {
-        return $this->update(['is_admin' => false]);
+        $this->is_admin = false;
+
+        return $this->save();
     }
 }
