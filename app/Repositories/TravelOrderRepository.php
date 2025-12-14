@@ -57,4 +57,11 @@ class TravelOrderRepository implements TravelOrderRepositoryInterface
             ->exists()
         ;
     }
+
+    public function update(TravelOrder $travelOrder, array $data): TravelOrder
+    {
+        $travelOrder->update($data);
+
+        return $travelOrder;
+    }
 }

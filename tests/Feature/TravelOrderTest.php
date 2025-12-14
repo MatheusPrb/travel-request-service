@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Constants\Messages;
 use App\Models\TravelOrder;
+use App\Models\User;
 use Tests\TestCase;
 
 class TravelOrderTest extends TestCase
@@ -404,5 +406,189 @@ class TravelOrderTest extends TestCase
                 'created_at',
                 'updated_at',
             ]);
+    }
+
+    public function test_admin_can_update_travel_order_status(): void
+    {
+        $admin = User::factory()->create();
+        $admin->makeAdmin();
+        $token = $this->actingAsWithJwt($admin->fresh());
+
+        $user = User::factory()->create();
+        $travelOrder = TravelOrder::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'solicitado',
+        ]);
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$travelOrder->id}/status",
+            ['status' => 'aprovado'],
+            $this->getAuthHeaders($token)
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'id' => $travelOrder->id,
+                'status' => 'aprovado',
+            ])
+        ;
+
+        $this->assertDatabaseHas('travel_orders', [
+            'id' => $travelOrder->id,
+            'status' => 'aprovado',
+        ]);
+    }
+
+    public function test_non_admin_cannot_update_travel_order_status(): void
+    {
+        $user = User::factory()->create();
+        $token = $this->actingAsWithJwt($user);
+
+        $travelOrder = TravelOrder::factory()->create([
+            'user_id' => $user->id,
+            'status' => 'solicitado',
+        ]);
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$travelOrder->id}/status",
+            ['status' => 'aprovado'],
+            $this->getAuthHeaders($token)
+        );
+
+        $response
+            ->assertStatus(403)
+            ->assertJson(['error' => Messages::UNAUTHORIZED_ACCESS])
+        ;
+    }
+
+    public function test_unauthenticated_user_cannot_update_travel_order_status(): void
+    {
+        $travelOrder = TravelOrder::factory()->create();
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$travelOrder->id}/status",
+            ['status' => 'aprovado']
+        );
+
+        $response->assertStatus(401);
+    }
+
+    public function test_cannot_cancel_approved_order(): void
+    {
+        $admin = User::factory()->create();
+        $admin->makeAdmin();
+        $token = $this->actingAsWithJwt($admin->fresh());
+
+        $user = User::factory()->create();
+        $travelOrder = TravelOrder::factory()->approved()->create([
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$travelOrder->id}/status",
+            ['status' => 'cancelado'],
+            $this->getAuthHeaders($token)
+        );
+
+        $response
+            ->assertStatus(422)
+            ->assertJson([
+                'error' => Messages::CANNOT_CANCEL_APPROVED_ORDER,
+            ])
+        ;
+
+        $this->assertDatabaseHas('travel_orders', [
+            'id' => $travelOrder->id,
+            'status' => 'aprovado',
+        ]);
+    }
+
+    public function test_can_cancel_requested_order(): void
+    {
+        $admin = User::factory()->create();
+        $admin->makeAdmin();
+        $token = $this->actingAsWithJwt($admin->fresh());
+
+        $user = User::factory()->create();
+        $travelOrder = TravelOrder::factory()->requested()->create([
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$travelOrder->id}/status",
+            ['status' => 'cancelado'],
+            $this->getAuthHeaders($token)
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'id' => $travelOrder->id,
+                'status' => 'cancelado',
+            ])
+        ;
+
+        $this->assertDatabaseHas('travel_orders', [
+            'id' => $travelOrder->id,
+            'status' => 'cancelado',
+        ]);
+    }
+
+    public function test_update_status_returns_validation_error_for_invalid_status(): void
+    {
+        $admin = User::factory()->create();
+        $admin->makeAdmin();
+        $token = $this->actingAsWithJwt($admin->fresh());
+
+        $travelOrder = TravelOrder::factory()->create();
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$travelOrder->id}/status",
+            ['status' => 'invalid_status'],
+            $this->getAuthHeaders($token)
+        );
+
+        $response
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['status'])
+        ;
+    }
+
+    public function test_update_status_returns_validation_error_for_missing_status(): void
+    {
+        $admin = User::factory()->create();
+        $admin->makeAdmin();
+        $token = $this->actingAsWithJwt($admin->fresh());
+
+        $travelOrder = TravelOrder::factory()->create();
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$travelOrder->id}/status",
+            [],
+            $this->getAuthHeaders($token)
+        );
+
+        $response
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['status'])
+        ;
+    }
+
+    public function test_update_status_returns_404_for_nonexistent_order(): void
+    {
+        $admin = User::factory()->create();
+        $admin->makeAdmin();
+        $token = $this->actingAsWithJwt($admin->fresh());
+
+        $nonExistentId = '00000000-0000-0000-0000-000000000000';
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$nonExistentId}/status",
+            ['status' => 'aprovado'],
+            $this->getAuthHeaders($token)
+        );
+
+        $response->assertStatus(404);
     }
 }

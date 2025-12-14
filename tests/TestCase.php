@@ -5,6 +5,7 @@ namespace Tests;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 abstract class TestCase extends BaseTestCase
@@ -20,6 +21,9 @@ abstract class TestCase extends BaseTestCase
     protected function actingAsWithJwt(?User $user = null): string
     {
         $user = $user ?? User::factory()->create();
+        
+        Auth::guard('api')->setUser($user);
+        
         return JWTAuth::fromUser($user);
     }
 
@@ -65,5 +69,17 @@ abstract class TestCase extends BaseTestCase
         $authenticated = $this->createAuthenticatedUser($attributes);
 
         return $this->getAuthHeaders($authenticated['token']);
+    }
+
+    protected function createAdminUserWithToken(): array
+    {
+        $admin = User::factory()->create();
+        $admin->makeAdmin();
+        $token = $this->actingAsWithJwt($admin->fresh());
+
+        return [
+            'user' => $admin,
+            'token' => $token,
+        ];
     }
 }

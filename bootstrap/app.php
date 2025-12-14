@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\Messages;
+use App\Exceptions\CannotCancelApprovedOrderException;
 use App\Exceptions\InvalidTravelDatesException;
 use App\Exceptions\NotFoundException;
 use App\Http\Middleware\EnsureUserIsAdmin;
@@ -37,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 401);
         });
 
-        $exceptions->render(function (InvalidTravelDatesException $e) {
+        $exceptions->render(function (InvalidTravelDatesException|CannotCancelApprovedOrderException $e) {
             return response()->json([
                 'error' => $e->getMessage()
             ], 422);
