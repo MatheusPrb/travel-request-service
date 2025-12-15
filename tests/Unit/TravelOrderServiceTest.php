@@ -8,7 +8,7 @@ use App\Exceptions\InvalidTravelDatesException;
 use App\Exceptions\NotFoundException;
 use App\Models\TravelOrder;
 use App\Services\TravelOrderService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Mockery;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -137,17 +137,23 @@ class TravelOrderServiceTest extends TestCase
         $user = $this->createAuthenticatedUser();
         $orders = TravelOrder::factory()->count(3)->make();
 
+        $paginator = new LengthAwarePaginator(
+            $orders,
+            $orders->count(),
+            15,
+            1,
+        );
+
         $this->repository
             ->shouldReceive('findByUserId')
             ->once()
             ->with($user['user']->id, [])
-            ->andReturn(new Collection($orders))
-        ;
+            ->andReturn($paginator);
 
         $result = $this->service->listByUser($user['user']->id);
 
-        $this->assertInstanceOf(Collection::class, $result);
-        $this->assertCount(3, $result);
+        $this->assertInstanceOf(LengthAwarePaginator::class, $result);
+        $this->assertCount(3, $result->items());
     }
 
     public function test_list_by_user_with_filters(): void
@@ -156,17 +162,23 @@ class TravelOrderServiceTest extends TestCase
         $filters = ['status' => 'aprovado', 'destination' => 'Paris'];
         $orders = TravelOrder::factory()->count(2)->make();
 
+        $paginator = new LengthAwarePaginator(
+            $orders,
+            $orders->count(),
+            15,
+            1
+        );
+
         $this->repository
             ->shouldReceive('findByUserId')
             ->once()
             ->with($user['user']->id, $filters)
-            ->andReturn(new Collection($orders))
-        ;
+            ->andReturn($paginator);
 
         $result = $this->service->listByUser($user['user']->id, $filters);
 
-        $this->assertInstanceOf(Collection::class, $result);
-        $this->assertCount(2, $result);
+        $this->assertInstanceOf(LengthAwarePaginator::class, $result);
+        $this->assertCount(2, $result->items());
     }
 
     public function test_find_by_id_successfully(): void
