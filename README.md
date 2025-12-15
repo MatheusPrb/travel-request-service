@@ -137,23 +137,23 @@ app/
 
 ```bash
 # 1. Construir e iniciar containers
-docker-compose up -d --build
+docker compose up -d --build
 
 # 2. Instalar dependências
-docker-compose exec app composer install
+docker compose exec app composer install
 
 # 3. Gerar chaves
-docker-compose exec app php artisan key:generate
-docker-compose exec app php artisan jwt:secret
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan jwt:secret
 
 # 4. Executar migrations
-docker-compose exec app php artisan migrate
+docker compose exec app php artisan migrate
 
 # 5. (Opcional) Popular banco de dados
-docker-compose exec app php artisan db:seed
+docker compose exec app php artisan db:seed
 
 # 6. Iniciar worker de filas
-docker-compose exec app php artisan queue:work
+docker compose exec app php artisan queue:work
 ```
 
 ### Acessando a Aplicação
@@ -179,7 +179,7 @@ O projeto possui testes automatizados usando PHPUnit, cobrindo autenticação JW
 ### Executando Testes
 
 ```bash
-docker-compose exec app php artisan test
+docker compose exec app php artisan test
 # ou
 ./run-test.sh
 ```
