@@ -11,12 +11,18 @@ class TravelOrderRepository implements TravelOrderRepositoryInterface
 {
     public function create(array $data): TravelOrder
     {
-        return TravelOrder::create($data);
+        $order = TravelOrder::create($data);
+        $order->loadMissing('user');
+
+        return $order;
     }
 
     public function findById(string $id): TravelOrder
     {
-        return TravelOrder::findOrFail($id);
+        $order = TravelOrder::findOrFail($id);
+        $order->loadMissing('user');
+
+        return $order;
     }
 
     public function findByUserId(string $userId, array $filters = []): Collection|LengthAwarePaginator
@@ -47,7 +53,10 @@ class TravelOrderRepository implements TravelOrderRepositoryInterface
             $query->whereDate('return_date', '<=', $filters['travel_end_date']);
         }
 
-        return $query->orderBy('created_at', 'desc')->get();
+        $orders = $query->orderBy('created_at', 'desc')->get();
+        $orders->loadMissing('user');
+
+        return $orders;
     }
 
     public function belongsToUser(string $id, string $userId): bool
@@ -61,6 +70,8 @@ class TravelOrderRepository implements TravelOrderRepositoryInterface
     public function update(TravelOrder $travelOrder, array $data): TravelOrder
     {
         $travelOrder->update($data);
+
+        $travelOrder->loadMissing('user');
 
         return $travelOrder;
     }

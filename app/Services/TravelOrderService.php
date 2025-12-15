@@ -62,9 +62,13 @@ class TravelOrderService
             throw new InvalidStatusTransitionException(Messages::INVALID_STATUS_UPDATE);
         }
 
-        $updatedTravelOrder = $this->repository->update($travelOrder, ['status' => $newStatus]);
+        $updateData = ['status' => $newStatus];
+        
+        if ($newStatusEnum === TravelOrderStatus::CANCELED) {
+            $updateData['cancelled_at'] = Carbon::now();
+        }
 
-        $updatedTravelOrder->loadMissing('user');
+        $updatedTravelOrder = $this->repository->update($travelOrder, $updateData);
 
         $this->notifyUser($updatedTravelOrder);
 

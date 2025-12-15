@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Constants\Messages;
+use App\Enums\TravelOrderStatus;
 use App\Models\TravelOrder;
 use App\Models\User;
 use Tests\TestCase;
@@ -590,5 +591,31 @@ class TravelOrderTest extends TestCase
         );
 
         $response->assertStatus(404);
+    }
+
+    public function test_should_fill_cancelled_at_when_cancelling_order(): void
+    {
+        $admin = $this->createAdminUserWithToken();
+
+        $user = User::factory()->create();
+        $travelOrder = TravelOrder::factory()->create([
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->patchJson(
+            "/api/travel-orders/{$travelOrder->id}/status",
+            ['status' => TravelOrderStatus::CANCELED->value],
+            $this->getAuthHeaders($admin['token'])
+        );
+        
+        $response->assertStatus(200);
+        $travelOrder->refresh();
+
+        $this->assertDatabaseHas('travel_orders', [
+            'id' => $travelOrder->id,
+            'status' => TravelOrderStatus::CANCELED->value,
+        ]);
+
+        $this->assertNotNull($travelOrder->cancelled_at);
     }
 }
