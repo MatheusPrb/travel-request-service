@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TravelOrder extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids;
 
     protected $table = 'travel_orders';
     public $incrementing = false;
@@ -23,6 +22,7 @@ class TravelOrder extends Model
         'departure_date',
         'return_date',
         'status',
+        'cancelled_at',
     ];
 
     protected $casts = [
@@ -30,7 +30,7 @@ class TravelOrder extends Model
         'return_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     protected $attributes = [
