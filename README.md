@@ -112,6 +112,9 @@ app/
    APP_DEBUG=true
    APP_URL=http://localhost:8080
 
+   # --------------------
+   # DATABASE
+   # --------------------
    DB_CONNECTION=mysql
    DB_HOST=mysql
    DB_PORT=3306
@@ -119,13 +122,17 @@ app/
    DB_USERNAME=admin
    DB_PASSWORD=admin
 
-   JWT_TTL=60
-
+   # --------------------
+   # MAIL (MAILHOG)
+   # --------------------
    MAIL_MAILER=smtp
    MAIL_HOST=mailhog
    MAIL_PORT=1025
    MAIL_FROM_ADDRESS="noreply@travel-request.local"
 
+   # --------------------
+   # QUEUE / REDIS
+   # --------------------
    QUEUE_CONNECTION=redis
    REDIS_HOST=redis
    REDIS_PORT=6379
