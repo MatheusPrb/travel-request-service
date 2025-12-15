@@ -307,4 +307,4 @@ Este projeto está sob a licença MIT.
 
 ---
 
-**Desenvolvido com ❤️ usando Laravel 12.0**
+**Desenvolvido usando Laravel 12.0**
