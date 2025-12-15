@@ -40,28 +40,28 @@ API RESTful para gerenciamento de solicitações de viagem com as seguintes func
 ### Padrões Arquiteturais
 
 #### Repository Pattern
-Abstração da camada de acesso a dados através de interfaces (`TravelOrderRepositoryInterface`), facilitando testes e permitindo troca de implementação sem afetar o Service Layer.
+- Abstração da camada de acesso a dados através de interfaces (`TravelOrderRepositoryInterface`), facilitando testes e permitindo troca de implementação sem afetar o Service Layer.
 
 #### Service Layer
-Encapsula toda a lógica de negócio (`TravelOrderService`), mantendo controllers leves e focados apenas em HTTP. Inclui validações de regras de negócio e orquestração de operações complexas.
+- Encapsula toda a lógica de negócio (`TravelOrderService`), mantendo controllers leves e focados apenas em HTTP. Inclui validações de regras de negócio e orquestração de operações complexas.
 
 #### Resource Layer
-Formatação consistente de respostas JSON através de Resources (`TravelOrderResource`, `AuthResource`), garantindo controle total sobre o formato de saída.
+- Formatação consistente de respostas JSON através de Resources (`TravelOrderResource`, `AuthResource`), garantindo controle total sobre o formato de saída.
 
 #### Form Request Validation
-Validação centralizada através de Form Requests customizados (`BaseFormRequest`), com mensagens de erro personalizadas e validações específicas por endpoint.
+- Validação centralizada através de Form Requests customizados (`BaseFormRequest`), com mensagens de erro personalizadas e validações específicas por endpoint.
 
 #### Enum para Status
-Uso de Enum PHP 8.1+ (`TravelOrderStatus`) com método `canUpdateTo()` para validação de transições válidas, garantindo type-safety.
+- Uso de Enum PHP 8.1+ (`TravelOrderStatus`) com método `canUpdateTo()` para validação de transições válidas, garantindo type-safety.
 
 #### Exceções Customizadas
-Tratamento granular de erros com exceções específicas (`NotFoundException`, `InvalidStatusTransitionException`, `InvalidTravelDatesException`) e códigos HTTP apropriados.
+- Tratamento granular de erros com exceções específicas (`NotFoundException`, `InvalidStatusTransitionException`, `InvalidTravelDatesException`) e códigos HTTP apropriados.
 
 #### Middleware Customizado
-Middleware `EnsureUserIsAdmin` para verificação de permissões, reutilizável em múltiplas rotas.
+- Middleware `EnsureUserIsAdmin` para verificação de permissões, reutilizável em múltiplas rotas.
 
 #### Notificações Assíncronas
-Envio de emails via filas (Redis) para processamento em background, garantindo resposta HTTP rápida e retry automático.
+- Envio de emails via filas (Redis) para processamento em background, garantindo resposta HTTP rápida e retry automático.
 
 ### Estrutura de Pastas
 
