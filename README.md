@@ -96,7 +96,7 @@ app/
 
 1. **Clonar o repositório**:
    ```bash
-   git clone <url-do-repositorio>
+   git clone https://github.com/MatheusPrb/travel-request-service.git
    cd travel-request-service
    ```
 
