@@ -17,47 +17,47 @@ class TravelOrderStatusTest extends TestCase
     public function test_requested_can_transition_to_approved(): void
     {
         $this->assertTrue(
-            TravelOrderStatus::REQUESTED->canTransitionTo(TravelOrderStatus::APPROVED)
+            TravelOrderStatus::REQUESTED->canUpdateTo(TravelOrderStatus::APPROVED)
         );
     }
 
     public function test_requested_can_transition_to_canceled(): void
     {
         $this->assertTrue(
-            TravelOrderStatus::REQUESTED->canTransitionTo(TravelOrderStatus::CANCELED)
+            TravelOrderStatus::REQUESTED->canUpdateTo(TravelOrderStatus::CANCELED)
         );
     }
 
     public function test_requested_cannot_transition_to_same_status(): void
     {
         $this->assertFalse(
-            TravelOrderStatus::REQUESTED->canTransitionTo(TravelOrderStatus::REQUESTED)
+            TravelOrderStatus::REQUESTED->canUpdateTo(TravelOrderStatus::REQUESTED)
         );
     }
 
     public function test_approved_cannot_transition_to_any_status(): void
     {
         $this->assertFalse(
-            TravelOrderStatus::APPROVED->canTransitionTo(TravelOrderStatus::REQUESTED)
+            TravelOrderStatus::APPROVED->canUpdateTo(TravelOrderStatus::REQUESTED)
         );
         $this->assertFalse(
-            TravelOrderStatus::APPROVED->canTransitionTo(TravelOrderStatus::APPROVED)
+            TravelOrderStatus::APPROVED->canUpdateTo(TravelOrderStatus::APPROVED)
         );
         $this->assertFalse(
-            TravelOrderStatus::APPROVED->canTransitionTo(TravelOrderStatus::CANCELED)
+            TravelOrderStatus::APPROVED->canUpdateTo(TravelOrderStatus::CANCELED)
         );
     }
 
     public function test_canceled_cannot_transition_to_any_status(): void
     {
         $this->assertFalse(
-            TravelOrderStatus::CANCELED->canTransitionTo(TravelOrderStatus::REQUESTED)
+            TravelOrderStatus::CANCELED->canUpdateTo(TravelOrderStatus::REQUESTED)
         );
         $this->assertFalse(
-            TravelOrderStatus::CANCELED->canTransitionTo(TravelOrderStatus::APPROVED)
+            TravelOrderStatus::CANCELED->canUpdateTo(TravelOrderStatus::APPROVED)
         );
         $this->assertFalse(
-            TravelOrderStatus::CANCELED->canTransitionTo(TravelOrderStatus::CANCELED)
+            TravelOrderStatus::CANCELED->canUpdateTo(TravelOrderStatus::CANCELED)
         );
     }
 

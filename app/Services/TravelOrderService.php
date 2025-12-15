@@ -57,7 +57,7 @@ class TravelOrderService
             throw new InvalidStatusTransitionException(Messages::INVALID_STATUS_UPDATE);
         }
 
-        if (!$currentStatus->canTransitionTo($newStatusEnum)) {
+        if (!$currentStatus->canUpdateTo($newStatusEnum)) {
             throw new InvalidStatusTransitionException(Messages::INVALID_STATUS_UPDATE);
         }
 

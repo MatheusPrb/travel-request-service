@@ -8,7 +8,7 @@ enum TravelOrderStatus: string
     case APPROVED = 'aprovado';
     case CANCELED = 'cancelado';
 
-    public function canTransitionTo(self $newStatus): bool
+    public function canUpdateTo(self $newStatus): bool
     {
         if ($this === $newStatus) {
             return false;
