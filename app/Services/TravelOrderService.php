@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\Constants\Messages;
 use App\Contracts\TravelOrderRepositoryInterface;
-use App\Exceptions\CannotCancelApprovedOrderException;
+use App\Enums\TravelOrderStatus;
+use App\Exceptions\InvalidStatusTransitionException;
 use App\Exceptions\InvalidTravelDatesException;
 use App\Exceptions\NotFoundException;
 use App\Models\TravelOrder;
+use App\Notifications\TravelOrderStatusChanged;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class TravelOrderService
 {
@@ -32,7 +34,7 @@ class TravelOrderService
         return $this->repository->create($data);
     }
 
-    public function listByUser(string $userId, array $filters = []): Collection
+    public function listByUser(string $userId, array $filters = []): LengthAwarePaginator
     {
         return $this->repository->findByUserId($userId, $filters);
     }
@@ -49,11 +51,32 @@ class TravelOrderService
     public function updateStatus(string $id, string $newStatus): TravelOrder
     {
         $travelOrder = $this->repository->findById($id);
+        $currentStatus = TravelOrderStatus::tryFrom($travelOrder->status);
+        $newStatusEnum = TravelOrderStatus::tryFrom($newStatus);
 
-        if ($newStatus === 'cancelado' && $travelOrder->status === 'aprovado') {
-            throw new CannotCancelApprovedOrderException(Messages::CANNOT_CANCEL_APPROVED_ORDER);
+        if (!$currentStatus || !$newStatusEnum) {
+            throw new InvalidStatusTransitionException(Messages::INVALID_STATUS_UPDATE);
         }
 
-        return $this->repository->update($travelOrder, ['status' => $newStatus]);
+        if (!$currentStatus->canUpdateTo($newStatusEnum)) {
+            throw new InvalidStatusTransitionException(Messages::INVALID_STATUS_UPDATE);
+        }
+
+        $updateData = ['status' => $newStatus];
+        
+        if ($newStatusEnum === TravelOrderStatus::CANCELED) {
+            $updateData['cancelled_at'] = Carbon::now();
+        }
+
+        $updatedTravelOrder = $this->repository->update($travelOrder, $updateData);
+
+        $this->notifyUser($updatedTravelOrder);
+
+        return $updatedTravelOrder;
+    }
+
+    public function notifyUser(TravelOrder $travelOrder): void
+    {
+        $travelOrder->user->notify(new TravelOrderStatusChanged($travelOrder));
     }
 }

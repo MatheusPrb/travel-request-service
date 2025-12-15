@@ -10,7 +10,7 @@ class Messages
 
     public const TRAVEL_ORDER_NOT_FOUND = 'Pedido de viagem não encontrado ou você não tem permissão para acessá-lo';
     public const INVALID_TRAVEL_DATES = 'Data de volta não pode ser antes da ida.';
-    public const CANNOT_CANCEL_APPROVED_ORDER = 'Não é possível cancelar um pedido que já foi aprovado.';
+    public const INVALID_STATUS_UPDATE = 'Atualização de status inválida.';
 
     public const USER_ALREADY_ADMIN = 'Usuário já é administrador.';
     public const USER_PROMOTED_TO_ADMIN = 'Usuário promovido a administrador com sucesso.';

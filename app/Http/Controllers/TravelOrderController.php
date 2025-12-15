@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTravelOrderRequest;
+use App\Http\Requests\ListTravelOrdersRequest;
 use App\Http\Requests\UpdateTravelOrderStatusRequest;
 use App\Http\Resources\TravelOrderResource;
 use App\Services\TravelOrderService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class TravelOrderController extends Controller
 {
@@ -29,11 +29,11 @@ class TravelOrderController extends Controller
         return response()->json(new TravelOrderResource($order), 201);
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(ListTravelOrdersRequest $request): JsonResponse
     {
-        $orders = $this->service->listByUser(auth('api')->id(), $request->all());
+        $orders = $this->service->listByUser(auth('api')->id(), $request->validated());
 
-        return response()->json(TravelOrderResource::collection($orders));
+        return TravelOrderResource::collection($orders)->response();
     }
 
     public function show(string $id): JsonResponse

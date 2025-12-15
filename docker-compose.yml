@@ -13,6 +13,10 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - app_network
+    depends_on:
+      - mysql
+      - redis
+      - mailhog
 
   nginx:
     image: nginx:latest
@@ -58,8 +62,28 @@ services:
     networks:
       - app_network
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - app_network
+
 networks:
   app_network:
 
 volumes:
   mysql_data:
+  redis_data:

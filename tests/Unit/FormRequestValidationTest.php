@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Http\Requests\BaseFormRequest;
 use App\Http\Requests\CreateTravelOrderRequest;
+use App\Http\Requests\ListTravelOrdersRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\PromoteUserToAdminRequest;
 use App\Http\Requests\RegisterRequest;
@@ -17,6 +18,7 @@ class FormRequestValidationTest extends TestCase
         $formRequests = [
             CreateTravelOrderRequest::class,
             UpdateTravelOrderStatusRequest::class,
+            ListTravelOrdersRequest::class,
             RegisterRequest::class,
             LoginRequest::class,
             PromoteUserToAdminRequest::class,
@@ -77,11 +79,35 @@ class FormRequestValidationTest extends TestCase
         $this->assertArrayHasKey('user_id', $rules);
     }
 
+    public function test_list_travel_orders_request_has_correct_rules(): void
+    {
+        $request = new ListTravelOrdersRequest();
+        $rules = $request->rules();
+
+        $this->assertArrayHasKey('status', $rules);
+        $this->assertArrayHasKey('destination', $rules);
+        $this->assertArrayHasKey('start_date', $rules);
+        $this->assertArrayHasKey('end_date', $rules);
+        $this->assertArrayHasKey('travel_start_date', $rules);
+        $this->assertArrayHasKey('travel_end_date', $rules);
+        $this->assertArrayHasKey('page', $rules);
+        $this->assertArrayHasKey('per_page', $rules);
+    }
+
+    public function test_list_travel_orders_request_status_validation(): void
+    {
+        $request = new ListTravelOrdersRequest();
+        $rules = $request->rules();
+
+        $this->assertContains('in:solicitado,aprovado,cancelado', $rules['status']);
+    }
+
     public function test_form_requests_do_not_have_duplicate_failed_validation(): void
     {
         $formRequests = [
             CreateTravelOrderRequest::class,
             UpdateTravelOrderStatusRequest::class,
+            ListTravelOrdersRequest::class,
             RegisterRequest::class,
             LoginRequest::class,
             PromoteUserToAdminRequest::class,
