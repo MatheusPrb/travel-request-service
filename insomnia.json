@@ -1,0 +1,504 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2024-01-15T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "req_auth_register",
+      "parentId": "fld_auth",
+      "modified": 1705320000000,
+      "created": 1705320000000,
+      "url": "{{ _.base_url }}/api/register",
+      "name": "Registrar Usuário",
+      "description": "Registra um novo usuário no sistema",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"João Silva\",\n  \"email\": \"joao@example.com\",\n  \"password\": \"senha123\",\n  \"password_confirmation\": \"senha123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "id": "pair_content_type"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320000000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_login",
+      "parentId": "fld_auth",
+      "modified": 1705320001000,
+      "created": 1705320001000,
+      "url": "{{ _.base_url }}/api/login",
+      "name": "Login",
+      "description": "Faz login e retorna o token JWT",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"joao@example.com\",\n  \"password\": \"senha123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "id": "pair_content_type"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320001000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_me",
+      "parentId": "fld_auth",
+      "modified": 1705320002000,
+      "created": 1705320002000,
+      "url": "{{ _.base_url }}/api/me",
+      "name": "Meus Dados",
+      "description": "Retorna os dados do usuário autenticado",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}",
+          "id": "pair_auth"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320002000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_logout",
+      "parentId": "fld_auth",
+      "modified": 1705320003000,
+      "created": 1705320003000,
+      "url": "{{ _.base_url }}/api/logout",
+      "name": "Logout",
+      "description": "Faz logout e invalida o token atual",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}",
+          "id": "pair_auth"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320003000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_auth_refresh",
+      "parentId": "fld_auth",
+      "modified": 1705320004000,
+      "created": 1705320004000,
+      "url": "{{ _.base_url }}/api/refresh",
+      "name": "Refresh Token",
+      "description": "Renova o token JWT",
+      "method": "POST",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}",
+          "id": "pair_auth"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320004000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_travel_create",
+      "parentId": "fld_travel",
+      "modified": 1705320100000,
+      "created": 1705320100000,
+      "url": "{{ _.base_url }}/api/travel-orders",
+      "name": "Criar Pedido de Viagem",
+      "description": "Cria um novo pedido de viagem",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"destination\": \"Paris\",\n  \"departure_date\": \"2024-06-01\",\n  \"return_date\": \"2024-06-15\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}",
+          "id": "pair_auth"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "id": "pair_content_type"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320100000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_travel_list",
+      "parentId": "fld_travel",
+      "modified": 1705320101000,
+      "created": 1705320101000,
+      "url": "{{ _.base_url }}/api/travel-orders",
+      "name": "Listar Pedidos",
+      "description": "Lista os pedidos de viagem do usuário autenticado com filtros opcionais",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "id": "pair_status",
+          "name": "status",
+          "value": "solicitado",
+          "description": "Filtrar por status: solicitado, aprovado, cancelado",
+          "disabled": true
+        },
+        {
+          "id": "pair_destination",
+          "name": "destination",
+          "value": "",
+          "description": "Filtrar por destino",
+          "disabled": true
+        },
+        {
+          "id": "pair_start_date",
+          "name": "start_date",
+          "value": "",
+          "description": "Data inicial do período de criação (YYYY-MM-DD)",
+          "disabled": true
+        },
+        {
+          "id": "pair_end_date",
+          "name": "end_date",
+          "value": "",
+          "description": "Data final do período de criação (YYYY-MM-DD)",
+          "disabled": true
+        },
+        {
+          "id": "pair_travel_start_date",
+          "name": "travel_start_date",
+          "value": "",
+          "description": "Data inicial do período de viagem (YYYY-MM-DD)",
+          "disabled": true
+        },
+        {
+          "id": "pair_travel_end_date",
+          "name": "travel_end_date",
+          "value": "",
+          "description": "Data final do período de viagem (YYYY-MM-DD)",
+          "disabled": true
+        },
+        {
+          "id": "pair_page",
+          "name": "page",
+          "value": "1",
+          "description": "Número da página",
+          "disabled": true
+        },
+        {
+          "id": "pair_per_page",
+          "name": "per_page",
+          "value": "15",
+          "description": "Itens por página (máximo 100)",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}",
+          "id": "pair_auth"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320101000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_travel_show",
+      "parentId": "fld_travel",
+      "modified": 1705320102000,
+      "created": 1705320102000,
+      "url": "{{ _.base_url }}/api/travel-orders/{{ _.travel_order_id }}",
+      "name": "Consultar Pedido",
+      "description": "Consulta um pedido de viagem específico por ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}",
+          "id": "pair_auth"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320102000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_travel_update_status",
+      "parentId": "fld_travel",
+      "modified": 1705320103000,
+      "created": 1705320103000,
+      "url": "{{ _.base_url }}/api/travel-orders/{{ _.travel_order_id }}/status",
+      "name": "Atualizar Status (Admin)",
+      "description": "Atualiza o status de um pedido de viagem (apenas administradores)",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"aprovado\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}",
+          "id": "pair_auth"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "id": "pair_content_type"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320103000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_admin_promote",
+      "parentId": "fld_admin",
+      "modified": 1705320200000,
+      "created": 1705320200000,
+      "url": "{{ _.base_url }}/api/users/promote-to-admin",
+      "name": "Promover a Admin",
+      "description": "Promove um usuário a administrador (apenas administradores)",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"user_id\": 2\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}",
+          "id": "pair_auth"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "id": "pair_content_type"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1705320200000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_auth",
+      "parentId": "wrk_main",
+      "modified": 1705320000000,
+      "created": 1705320000000,
+      "name": "Autenticação",
+      "description": "Endpoints de autenticação e gerenciamento de usuários",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1705320000000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_travel",
+      "parentId": "wrk_main",
+      "modified": 1705320100000,
+      "created": 1705320100000,
+      "name": "Pedidos de Viagem",
+      "description": "Endpoints para gerenciamento de pedidos de viagem",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1705320100000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_admin",
+      "parentId": "wrk_main",
+      "modified": 1705320200000,
+      "created": 1705320200000,
+      "name": "Administração",
+      "description": "Endpoints administrativos (requer permissão de admin)",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1705320200000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "env_main",
+      "parentId": "wrk_main",
+      "modified": 1705320000000,
+      "created": 1705320000000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "token": "",
+        "travel_order_id": ""
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "token",
+          "travel_order_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1705320000000,
+      "_type": "environment"
+    },
+    {
+      "_id": "wrk_main",
+      "parentId": null,
+      "modified": 1705320000000,
+      "created": 1705320000000,
+      "name": "Travel Request Service API",
+      "description": "Coleção de requisições para a API do Travel Request Service",
+      "scope": null,
+      "_type": "workspace"
+    }
+  ]
+}

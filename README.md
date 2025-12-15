@@ -1,59 +1,310 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Travel Request Service
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema de gerenciamento de solicitações de viagem desenvolvido com Laravel 12.0. API RESTful que permite usuários autenticados criarem, consultarem e gerenciarem pedidos de viagem, com controle de status e notificações por email.
 
-## About Laravel
+## 📋 Índice
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Arquitetura e Decisões Técnicas](#arquitetura-e-decisões-técnicas)
+- [Requisitos](#requisitos)
+- [Instalação e Configuração](#instalação-e-configuração)
+- [Executando com Docker](#executando-com-docker)
+- [Testes](#testes)
+- [Documentação da API](#documentação-da-api)
+- [Estrutura do Projeto](#estrutura-do-projeto)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🎯 Sobre o Projeto
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+API RESTful para gerenciamento de solicitações de viagem com as seguintes funcionalidades:
 
-## Learning Laravel
+- **Autenticação JWT**: registro, login, logout e refresh token
+- **Pedidos de Viagem**: criação, consulta e listagem com filtros avançados
+- **Controle de Status**: transições controladas (solicitado → aprovado/cancelado)
+- **Notificações**: envio automático de emails quando status muda para aprovado/cancelado
+- **Administração**: sistema de permissões com roles de admin
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🛠 Tecnologias Utilizadas
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **PHP 8.2+** e **Laravel 12.0**
+- **MySQL 8** - Banco de dados
+- **Redis** - Cache e filas
+- **JWT Auth (tymon/jwt-auth)** - Autenticação via tokens
+- **Docker & Docker Compose** - Containerização
+- **Nginx** - Servidor web
+- **PHPUnit** - Testes automatizados
+- **MailHog** - Servidor SMTP para desenvolvimento
 
-## Laravel Sponsors
+## 🏗 Arquitetura e Decisões Técnicas
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Padrões Arquiteturais
 
-### Premium Partners
+#### Repository Pattern
+Abstração da camada de acesso a dados através de interfaces (`TravelOrderRepositoryInterface`), facilitando testes e permitindo troca de implementação sem afetar o Service Layer.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+#### Service Layer
+Encapsula toda a lógica de negócio (`TravelOrderService`), mantendo controllers leves e focados apenas em HTTP. Inclui validações de regras de negócio e orquestração de operações complexas.
 
-## Contributing
+#### Resource Layer
+Formatação consistente de respostas JSON através de Resources (`TravelOrderResource`, `AuthResource`), garantindo controle total sobre o formato de saída.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+#### Form Request Validation
+Validação centralizada através de Form Requests customizados (`BaseFormRequest`), com mensagens de erro personalizadas e validações específicas por endpoint.
 
-## Code of Conduct
+#### Enum para Status
+Uso de Enum PHP 8.1+ (`TravelOrderStatus`) com método `canUpdateTo()` para validação de transições válidas, garantindo type-safety.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+#### Exceções Customizadas
+Tratamento granular de erros com exceções específicas (`NotFoundException`, `InvalidStatusTransitionException`, `InvalidTravelDatesException`) e códigos HTTP apropriados.
 
-## Security Vulnerabilities
+#### Middleware Customizado
+Middleware `EnsureUserIsAdmin` para verificação de permissões, reutilizável em múltiplas rotas.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#### Notificações Assíncronas
+Envio de emails via filas (Redis) para processamento em background, garantindo resposta HTTP rápida e retry automático.
 
-## License
+### Estrutura de Pastas
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+app/
+├── Constants/          # Constantes (mensagens)
+├── Contracts/          # Interfaces (Repository Pattern)
+├── Enums/              # Enumeradores (Status)
+├── Exceptions/         # Exceções customizadas
+├── Http/
+│   ├── Controllers/    # Controllers HTTP
+│   ├── Middleware/     # Middlewares customizados
+│   ├── Requests/       # Form Requests (validação)
+│   └── Resources/      # API Resources (formatação)
+├── Models/             # Modelos Eloquent
+├── Notifications/      # Notificações (emails)
+├── Repositories/       # Implementação dos Repositories
+└── Services/           # Service Layer (lógica de negócio)
+```
+
+## 📦 Requisitos
+
+- Docker e Docker Compose
+
+## 🚀 Instalação e Configuração
+
+### Pré-requisitos
+
+- [Docker](https://www.docker.com/get-started) e Docker Compose instalados
+
+### Passos de Instalação
+
+1. **Clonar o repositório**:
+   ```bash
+   git clone https://github.com/MatheusPrb/travel-request-service.git
+   cd travel-request-service
+   ```
+
+2. **Copiar arquivo de ambiente**:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Configurar variáveis de ambiente** no arquivo `.env`:
+   ```env
+   APP_NAME="Travel Request Service"
+   APP_ENV=local
+   APP_DEBUG=true
+   APP_URL=http://localhost:8080
+
+   DB_CONNECTION=mysql
+   DB_HOST=mysql
+   DB_PORT=3306
+   DB_DATABASE=db
+   DB_USERNAME=admin
+   DB_PASSWORD=admin
+
+   JWT_TTL=60
+
+   MAIL_MAILER=smtp
+   MAIL_HOST=mailhog
+   MAIL_PORT=1025
+   MAIL_FROM_ADDRESS="noreply@travel-request.local"
+
+   QUEUE_CONNECTION=redis
+   REDIS_HOST=redis
+   REDIS_PORT=6379
+   ```
+
+## 🐳 Executando com Docker
+
+### Setup Inicial
+
+```bash
+# 1. Construir e iniciar containers
+docker-compose up -d --build
+
+# 2. Instalar dependências
+docker-compose exec app composer install
+
+# 3. Gerar chaves
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan jwt:secret
+
+# 4. Executar migrations
+docker-compose exec app php artisan migrate
+
+# 5. (Opcional) Popular banco de dados
+docker-compose exec app php artisan db:seed
+
+# 6. Iniciar worker de filas
+docker-compose exec app php artisan queue:work
+```
+
+### Acessando a Aplicação
+
+- **API**: http://localhost:8080
+- **PHPMyAdmin**: http://localhost:8081
+- **MailHog UI**: http://localhost:8025
+
+### Scripts Auxiliares
+
+```bash
+./run-migrate.sh      # Executar migrations
+./run-refresh.sh      # Refresh migrations (drop e recriar)
+./run-seed.sh         # Executar seeders
+./run-test.sh         # Executar testes
+./run-queue.sh        # Executar fila
+```
+
+## 🧪 Testes
+
+O projeto possui testes automatizados usando PHPUnit, cobrindo autenticação JWT, CRUD de pedidos, validações, middleware de admin, notificações e tratamento de exceções.
+
+### Executando Testes
+
+```bash
+docker-compose exec app php artisan test
+# ou
+./run-test.sh
+```
+
+## 📚 Documentação da API
+
+A documentação completa está disponível em formato OpenAPI/Swagger no arquivo `swagger.yaml`.
+
+### Visualizar Documentação
+
+**Swagger Editor Online**:
+1. Acesse https://editor.swagger.io/
+2. Importe o arquivo `swagger.yaml`
+
+**Swagger UI Local**:
+```bash
+docker run -p 8082:8080 -e SWAGGER_JSON=/swagger.yaml -v $(pwd)/swagger.yaml:/swagger.yaml swaggerapi/swagger-ui
+```
+Acesse http://localhost:8082
+
+### Importar Coleções
+
+#### Insomnia
+
+1. Instale: https://insomnia.rest/download
+2. Importe: "Create" → "Import/Export" → "Import Data" → "From File" → selecione `Insomnia.yaml` ou `insomnia.json`
+3. Variáveis pré-configuradas:
+   - `base_url`: http://localhost:8080
+   - `token`: preenchido após login
+   - `travel_order_id`: preenchido ao criar pedido
+
+#### Postman
+
+1. Instale: https://www.postman.com/downloads/
+2. Importe: "Import" → selecione `postman.json`
+3. Variáveis pré-configuradas (automaticamente atualizadas):
+   - `base_url`: http://localhost:8080
+   - `token`: salvo automaticamente após login/refresh
+   - `travel_order_id`: salvo automaticamente ao criar pedido
+
+**Nota**: Execute primeiro a requisição "Login" para obter o token automaticamente. As rotas protegidas já estão configuradas para usar o token.
+
+## 📁 Estrutura do Projeto
+
+```
+travel-request-service/
+├── app/
+│   ├── Constants/              # Constantes (mensagens)
+│   ├── Contracts/              # Interfaces (Repository)
+│   ├── Enums/                  # Enumeradores
+│   ├── Exceptions/             # Exceções customizadas
+│   ├── Http/
+│   │   ├── Controllers/        # Controllers
+│   │   ├── Middleware/         # Middlewares
+│   │   ├── Requests/           # Form Requests
+│   │   └── Resources/          # API Resources
+│   ├── Models/                 # Modelos Eloquent
+│   ├── Notifications/          # Notificações
+│   ├── Repositories/           # Repositories
+│   └── Services/               # Services
+├── config/                     # Arquivos de configuração
+├── database/
+│   ├── migrations/             # Migrations
+│   ├── seeders/                # Seeders
+│   └── factories/              # Factories
+├── routes/
+│   └── api.php                 # Rotas da API
+├── tests/                      # Testes automatizados
+├── docker-compose.yml          # Configuração Docker
+├── Dockerfile                  # Imagem Docker
+├── swagger.yaml                # Documentação OpenAPI
+├── insomnia.json               # Coleção Insomnia
+├── postman.json                # Coleção Postman
+└── README.md                   # Este arquivo
+```
+
+## 🔒 Segurança e Regras de Negócio
+
+### Autenticação
+- JWT com tokens expiráveis
+- Senhas hasheadas com bcrypt
+- Middleware de autenticação em rotas protegidas
+
+### Autorização
+- Verificação de propriedade: usuários só veem seus próprios pedidos
+- Middleware `admin` para rotas administrativas
+- Endpoint para promover usuários a administradores
+
+### Validações
+- Validação de entrada em todos os endpoints
+- Data de retorno deve ser igual ou posterior à data de partida
+- Status inicial sempre "solicitado"
+
+### Transições de Status
+- `solicitado` → `aprovado` ✅
+- `solicitado` → `cancelado` ✅
+- `aprovado` → `cancelado` ❌ (não permitido)
+- `cancelado` → qualquer outro ❌ (não permitido)
+
+**Regra**: Pedidos aprovados não podem ser cancelados. Apenas administradores podem atualizar status.
+
+### Notificações
+- Envio automático quando status muda para `aprovado` ou `cancelado`
+- Processamento assíncrono via filas (Redis)
+- Emails capturados pelo MailHog em desenvolvimento
+
+## 📝 Notas Importantes
+
+- UUIDs para IDs de pedidos de viagem
+- Datas armazenadas no formato `Y-m-d`
+- Timezone padrão: UTC
+- Emails enviados via fila para melhor performance
+
+## 🤝 Contribuindo
+
+1. Faça um fork do projeto
+2. Crie uma branch (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
+
+---
+
+**Desenvolvido com ❤️ usando Laravel 12.0**

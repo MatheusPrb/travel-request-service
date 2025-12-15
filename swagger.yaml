@@ -1,0 +1,616 @@
+openapi: 3.0.3
+info:
+  title: Travel Request Service API
+  description: |
+    API RESTful para gerenciamento de solicitações de viagem. 
+    Permite que usuários autenticados criem, consultem e gerenciem pedidos de viagem, 
+    com controle de status e notificações por email.
+  version: 1.0.0
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desenvolvimento
+
+tags:
+  - name: Autenticação
+    description: Endpoints de autenticação e gerenciamento de usuários
+  - name: Pedidos de Viagem
+    description: Endpoints para gerenciamento de pedidos de viagem
+  - name: Administração
+    description: Endpoints administrativos (requer permissão de admin)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Insira o token JWT obtido no endpoint de login. Formato Bearer {token}
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "João Silva"
+        email:
+          type: string
+          format: email
+          example: "joao@example.com"
+        email_verified_at:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01 12:00:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01 12:00:00"
+
+    TravelOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        requester_name:
+          type: string
+          example: "João Silva"
+        destination:
+          type: string
+          example: "Paris"
+        departure_date:
+          type: string
+          format: date
+          example: "2024-06-01"
+        return_date:
+          type: string
+          format: date
+          example: "2024-06-15"
+        status:
+          type: string
+          enum: [solicitado, aprovado, cancelado]
+          example: "solicitado"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01 12:00:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01 12:00:00"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Mensagem de erro"
+        message:
+          type: string
+          example: "Mensagem de erro"
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Os dados fornecidos são inválidos."
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    PaginatedTravelOrders:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TravelOrder'
+        current_page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 15
+        total:
+          type: integer
+          example: 10
+        last_page:
+          type: integer
+          example: 1
+
+paths:
+  /api/register:
+    post:
+      tags:
+        - Autenticação
+      summary: Registrar novo usuário
+      description: Cria uma nova conta de usuário no sistema
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                  example: "João Silva"
+                email:
+                  type: string
+                  format: email
+                  example: "joao@example.com"
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  example: "senha123"
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: "senha123"
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '422':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /api/login:
+    post:
+      tags:
+        - Autenticação
+      summary: Fazer login e obter token JWT
+      description: Autentica um usuário e retorna um token JWT para uso nas requisições protegidas
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "joao@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "senha123"
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /api/me:
+    get:
+      tags:
+        - Autenticação
+      summary: Obter dados do usuário autenticado
+      description: Retorna os dados do usuário atualmente autenticado
+      operationId: me
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dados do usuário
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/logout:
+    post:
+      tags:
+        - Autenticação
+      summary: Fazer logout (invalidar token)
+      description: Invalida o token JWT atual do usuário
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logout realizado com sucesso"
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/refresh:
+    post:
+      tags:
+        - Autenticação
+      summary: Renovar token JWT
+      description: Gera um novo token JWT baseado no token atual
+      operationId: refresh
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token renovado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+        '401':
+          description: Token inválido ou expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/travel-orders:
+    post:
+      tags:
+        - Pedidos de Viagem
+      summary: Criar novo pedido de viagem
+      description: Cria um novo pedido de viagem para o usuário autenticado
+      operationId: createTravelOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - destination
+                - departure_date
+                - return_date
+              properties:
+                destination:
+                  type: string
+                  example: "Paris"
+                departure_date:
+                  type: string
+                  format: date
+                  example: "2024-06-01"
+                return_date:
+                  type: string
+                  format: date
+                  example: "2024-06-15"
+      responses:
+        '201':
+          description: Pedido criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TravelOrder'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+    get:
+      tags:
+        - Pedidos de Viagem
+      summary: Listar pedidos de viagem do usuário autenticado
+      description: |
+        Lista os pedidos de viagem do usuário autenticado com filtros opcionais.
+        Suporta paginação e filtros por status, destino e períodos.
+      operationId: listTravelOrders
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filtrar por status
+          required: false
+          schema:
+            type: string
+            enum: [solicitado, aprovado, cancelado]
+        - name: destination
+          in: query
+          description: Filtrar por destino
+          required: false
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          description: Data inicial do período de criação (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Data final do período de criação (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: travel_start_date
+          in: query
+          description: Data inicial do período de viagem (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: travel_end_date
+          in: query
+          description: Data final do período de viagem (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          description: Itens por página (máximo 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 15
+      responses:
+        '200':
+          description: Lista de pedidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTravelOrders'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/travel-orders/{id}:
+    get:
+      tags:
+        - Pedidos de Viagem
+      summary: Consultar pedido de viagem específico
+      description: Retorna os dados de um pedido de viagem específico. Usuários só podem consultar seus próprios pedidos.
+      operationId: getTravelOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID do pedido
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dados do pedido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TravelOrder'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Pedido não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/travel-orders/{id}/status:
+    patch:
+      tags:
+        - Pedidos de Viagem
+      summary: Atualizar status do pedido de viagem (apenas admin)
+      description: |
+        Atualiza o status de um pedido de viagem. 
+        Apenas administradores podem executar esta ação.
+        Transições válidas:
+        - solicitado → aprovado
+        - solicitado → cancelado
+        Pedidos aprovados não podem ser cancelados.
+      operationId: updateTravelOrderStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID do pedido
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [solicitado, aprovado, cancelado]
+                  example: "aprovado"
+      responses:
+        '200':
+          description: Status atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TravelOrder'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Acesso negado - apenas administradores
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Pedido não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Transição de status inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/users/promote-to-admin:
+    post:
+      tags:
+        - Administração
+      summary: Promover usuário a administrador
+      description: Promove um usuário a administrador. Apenas administradores podem executar esta ação.
+      operationId: promoteToAdmin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: integer
+                  example: 2
+      responses:
+        '200':
+          description: Usuário promovido a administrador
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuário promovido a administrador com sucesso"
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Acesso negado - apenas administradores
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
