@@ -9,6 +9,7 @@ use App\Exceptions\InvalidStatusTransitionException;
 use App\Exceptions\InvalidTravelDatesException;
 use App\Exceptions\NotFoundException;
 use App\Models\TravelOrder;
+use App\Notifications\TravelOrderStatusChanged;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -61,6 +62,17 @@ class TravelOrderService
             throw new InvalidStatusTransitionException(Messages::INVALID_STATUS_UPDATE);
         }
 
-        return $this->repository->update($travelOrder, ['status' => $newStatus]);
+        $updatedTravelOrder = $this->repository->update($travelOrder, ['status' => $newStatus]);
+
+        $updatedTravelOrder->loadMissing('user');
+
+        $this->notifyUser($updatedTravelOrder);
+
+        return $updatedTravelOrder;
+    }
+
+    public function notifyUser(TravelOrder $travelOrder): void
+    {
+        $travelOrder->user->notify(new TravelOrderStatusChanged($travelOrder));
     }
 }
