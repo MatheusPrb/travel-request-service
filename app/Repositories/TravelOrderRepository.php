@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Contracts\TravelOrderRepositoryInterface;
 use App\Models\TravelOrder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 
 class TravelOrderRepository implements TravelOrderRepositoryInterface
 {
@@ -25,7 +24,7 @@ class TravelOrderRepository implements TravelOrderRepositoryInterface
         return $order;
     }
 
-    public function findByUserId(string $userId, array $filters = []): Collection|LengthAwarePaginator
+    public function findByUserId(string $userId, array $filters = []): LengthAwarePaginator
     {
         $query = TravelOrder::where('user_id', $userId);
 
@@ -53,10 +52,12 @@ class TravelOrderRepository implements TravelOrderRepositoryInterface
             $query->whereDate('return_date', '<=', $filters['travel_end_date']);
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->get();
-        $orders->loadMissing('user');
-
-        return $orders;
+        $perPage = $filters['per_page'] ?? config('pagination.per_page');
+        
+        return $query->with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+        ;
     }
 
     public function belongsToUser(string $id, string $userId): bool

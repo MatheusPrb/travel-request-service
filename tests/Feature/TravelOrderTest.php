@@ -214,7 +214,16 @@ class TravelOrderTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJsonCount(3)
+            ->assertJsonCount(3, 'data')
+            ->assertJsonStructure([
+                'data' => [],
+                'meta' => [
+                    'current_page',
+                    'per_page',
+                    'total',
+                    'last_page',
+                ],
+            ])
         ;
     }
 
@@ -231,7 +240,7 @@ class TravelOrderTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJsonCount(3)
+            ->assertJsonCount(3, 'data')
         ;
 
         $response->assertJsonMissing([
@@ -257,7 +266,7 @@ class TravelOrderTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJsonCount(2)
+            ->assertJsonCount(2, 'data')
         ;
 
         $response->assertJsonFragment(['status' => 'aprovado']);
@@ -286,7 +295,7 @@ class TravelOrderTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJsonCount(1)
+            ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['destination' => 'Paris, França'])
         ;
     }
@@ -315,7 +324,7 @@ class TravelOrderTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJsonCount(1)
+            ->assertJsonCount(1, 'data')
         ;
     }
 
@@ -325,7 +334,8 @@ class TravelOrderTest extends TestCase
 
         $response
             ->assertStatus(200)
-            ->assertJsonCount(0)
+            ->assertJsonCount(0, 'data')
+            ->assertJson(['meta' => ['total' => 0]])
         ;
     }
 
@@ -617,5 +627,68 @@ class TravelOrderTest extends TestCase
         ]);
 
         $this->assertNotNull($travelOrder->cancelled_at);
+    }
+
+    public function test_list_returns_paginated_response(): void
+    {
+        $authenticated = $this->createAuthenticatedUser();
+        TravelOrder::factory()->count(25)->create(['user_id' => $authenticated['user']->id]);
+
+        $response = $this->getJson('/api/travel-orders', $this->getAuthHeaders($authenticated['token']));
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [],
+                'meta' => [
+                    'current_page',
+                    'per_page',
+                    'total',
+                    'last_page',
+                ],
+            ])
+        ;
+
+        $this->assertEquals(15, $response->json('meta.per_page'));
+        $this->assertEquals(25, $response->json('meta.total'));
+        $this->assertEquals(2, $response->json('meta.last_page'));
+    }
+
+    public function test_list_respects_per_page_parameter(): void
+    {
+        $authenticated = $this->createAuthenticatedUser();
+        TravelOrder::factory()->count(20)->create(['user_id' => $authenticated['user']->id]);
+
+        $response = $this->getJson(
+            '/api/travel-orders?per_page=5',
+            $this->getAuthHeaders($authenticated['token'])
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data')
+        ;
+
+        $this->assertEquals(5, $response->json('meta.per_page'));
+        $this->assertEquals(20, $response->json('meta.total'));
+        $this->assertEquals(4, $response->json('meta.last_page'));
+    }
+
+    public function test_list_respects_page_parameter(): void
+    {
+        $authenticated = $this->createAuthenticatedUser();
+        TravelOrder::factory()->count(20)->create(['user_id' => $authenticated['user']->id]);
+
+        $response = $this->getJson(
+            '/api/travel-orders?per_page=5&page=2',
+            $this->getAuthHeaders($authenticated['token'])
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data')
+        ;
+
+        $this->assertEquals(2, $response->json('meta.current_page'));
     }
 }

@@ -11,7 +11,7 @@ use App\Exceptions\NotFoundException;
 use App\Models\TravelOrder;
 use App\Notifications\TravelOrderStatusChanged;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class TravelOrderService
 {
@@ -34,7 +34,7 @@ class TravelOrderService
         return $this->repository->create($data);
     }
 
-    public function listByUser(string $userId, array $filters = []): Collection
+    public function listByUser(string $userId, array $filters = []): LengthAwarePaginator
     {
         return $this->repository->findByUserId($userId, $filters);
     }
