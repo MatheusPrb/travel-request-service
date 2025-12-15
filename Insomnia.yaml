@@ -1,0 +1,421 @@
+type: collection.insomnia.rest/5.0
+name: Travel.app
+meta:
+  id: wrk_cd0b6e92f26b4f03a531f84df0f9b8cf
+  created: 1765834403428
+  modified: 1765835244823
+  description: ""
+collection:
+  - name: Autenticação
+    meta:
+      id: fld_8ceed365d57c41f8a34fd155d7bbf54a
+      created: 1705320000000
+      modified: 1765834425388
+      sortKey: -1705320150000
+      description: Endpoints de autenticação e gerenciamento de usuários
+    children:
+      - url: "{{ base_url }}api/register"
+        name: Registrar Usuário
+        meta:
+          id: req_93009c0d9c854b2cbce651bb6e2772fe
+          created: 1705320000000
+          modified: 1765834856106
+          isPrivate: false
+          description: Registra um novo usuário no sistema
+          sortKey: -1705320003750
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "João Silva",
+              "email": "joaos@example.com",
+              "password": "senha123",
+              "password_confirmation": "senha123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_content_type
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ base_url }}api/login"
+        name: Login
+        meta:
+          id: req_e026f05b85514d58984bc915d38e289a
+          created: 1705320001000
+          modified: 1765834851595
+          isPrivate: false
+          description: Faz login e retorna o token JWT
+          sortKey: -1705320003500
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {
+            	"email": "{% response 'body', 'req_93009c0d9c854b2cbce651bb6e2772fe', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}",
+              "password": "senha123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_content_type
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ base_url }}api/me"
+        name: Meus Dados
+        meta:
+          id: req_bd304c2bfb084b9388026c0544abfdd4
+          created: 1705320002000
+          modified: 1765834763330
+          isPrivate: false
+          description: Retorna os dados do usuário autenticado
+          sortKey: -1705320003250
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ token }}
+            id: pair_auth
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ base_url }}api/logout"
+        name: Logout
+        meta:
+          id: req_2cc09028135343c880c797fa87c8ff0d
+          created: 1705320003000
+          modified: 1765834604117
+          isPrivate: false
+          description: Faz logout e invalida o token atual
+          sortKey: -1705320003000
+        method: POST
+        headers:
+          - name: Authorization
+            value: Bearer {{ token }}
+            id: pair_auth
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ base_url }}api/refresh"
+        name: Refresh Token
+        meta:
+          id: req_1f9fe97e275943aa89f20274c17513da
+          created: 1705320004000
+          modified: 1765834602217
+          isPrivate: false
+          description: Renova o token JWT
+          sortKey: -1705320003125
+        method: POST
+        headers:
+          - name: Authorization
+            value: Bearer {{ token }}
+            id: pair_auth
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Pedidos de Viagem
+    meta:
+      id: fld_4f9b51fb81d344e2a9b359284454c20a
+      created: 1705320100000
+      modified: 1765835197169
+      sortKey: -1705320137500
+      description: Endpoints para gerenciamento de pedidos de viagem
+    children:
+      - url: "{{ base_url }}api/travel-orders"
+        name: Criar Pedido de Viagem
+        meta:
+          id: req_45c98f38274f41e98d92bac4e8a60ab0
+          created: 1705320100000
+          modified: 1765834606137
+          isPrivate: false
+          description: Cria um novo pedido de viagem
+          sortKey: -1705320100000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "destination": "Paris",
+              "departure_date": "2024-06-01",
+              "return_date": "2024-06-15"
+            }
+        headers:
+          - name: Authorization
+            value: Bearer {{ token }}
+            id: pair_auth
+          - name: Content-Type
+            value: application/json
+            id: pair_content_type
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ base_url }}api/travel-orders"
+        name: Listar Pedidos
+        meta:
+          id: req_aad4a928ee9441bfb3da0f504bc7a9ae
+          created: 1705320101000
+          modified: 1765834608828
+          isPrivate: false
+          description: Lista os pedidos de viagem do usuário autenticado com filtros
+            opcionais
+          sortKey: -1705320099975
+        method: GET
+        parameters:
+          - id: pair_status
+            name: status
+            value: solicitado
+            description: "Filtrar por status: solicitado, aprovado, cancelado"
+            disabled: true
+          - id: pair_destination
+            name: destination
+            value: ""
+            description: Filtrar por destino
+            disabled: true
+          - id: pair_start_date
+            name: start_date
+            value: ""
+            description: Data inicial do período de criação (YYYY-MM-DD)
+            disabled: true
+          - id: pair_end_date
+            name: end_date
+            value: ""
+            description: Data final do período de criação (YYYY-MM-DD)
+            disabled: true
+          - id: pair_travel_start_date
+            name: travel_start_date
+            value: ""
+            description: Data inicial do período de viagem (YYYY-MM-DD)
+            disabled: true
+          - id: pair_travel_end_date
+            name: travel_end_date
+            value: ""
+            description: Data final do período de viagem (YYYY-MM-DD)
+            disabled: true
+          - id: pair_page
+            name: page
+            value: "1"
+            description: Número da página
+            disabled: true
+          - id: pair_per_page
+            name: per_page
+            value: "15"
+            description: Itens por página (máximo 100)
+            disabled: true
+        headers:
+          - name: Authorization
+            value: Bearer {{ token }}
+            id: pair_auth
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ base_url }}api/travel-orders/{{order_id}}"
+        name: Consultar Pedido
+        meta:
+          id: req_167e7d8a68a142299794cae9ab2eb542
+          created: 1705320102000
+          modified: 1765834816386
+          isPrivate: false
+          description: Consulta um pedido de viagem específico por ID
+          sortKey: -1705320099950
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ token }}
+            id: pair_auth
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ base_url }}api/travel-orders/{{order_id}}/status"
+        name: Atualizar Status (Admin)
+        meta:
+          id: req_6142aee1f85b4fada6663b52b1bc2408
+          created: 1705320103000
+          modified: 1765835087935
+          isPrivate: false
+          description: Atualiza o status de um pedido de viagem (apenas administradores)
+          sortKey: -1705320099925
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "status": "aprovado"
+            }
+        headers:
+          - name: Authorization
+            value: Bearer {{ token }}
+            id: pair_auth
+          - name: Content-Type
+            value: application/json
+            id: pair_content_type
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Administração
+    meta:
+      id: fld_ba6498eee7a64ba2a1ba8006ad75b188
+      created: 1705320200000
+      modified: 1765835195651
+      sortKey: -1705320125000
+      description: Endpoints administrativos (requer permissão de admin)
+    children:
+      - url: "{{ base_url }}api/users/promote-to-admin"
+        name: Promover a Admin
+        meta:
+          id: req_17de02f969c14c7abd69073050573cee
+          created: 1705320200000
+          modified: 1765835177908
+          isPrivate: false
+          description: Promove um usuário a administrador (apenas administradores)
+          sortKey: -1705320200000
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {     
+            	"user_id": "{% response 'body', 'req_cfda1d2d10ac4d74a1a98b27f78dfaab', 'b64::JC5pZA==::46b', 'never', 60 %}"
+            }
+        headers:
+          - name: Authorization
+            value: Bearer {% response 'body', 'req_c5e040fbab6545548ac272f6de1fdd2a',
+              'b64::JC50b2tlbg==::46b', 'never', 60 %}
+            id: pair_auth
+          - name: Content-Type
+            value: application/json
+            id: pair_content_type
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ base_url }}api/login"
+        name: Login Admin
+        meta:
+          id: req_c5e040fbab6545548ac272f6de1fdd2a
+          created: 1765834658167
+          modified: 1765834674609
+          isPrivate: false
+          description: Faz login e retorna o token JWT
+          sortKey: -1765834645869
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "admin@example.com",
+              "password": "password"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_content_type
+          - name: Accept
+            value: application/json
+            id: pair_accept
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_c6456a23fa39ee25547dec5094b765dd8f346b7e
+    created: 1765834403430
+    modified: 1765834403430
+environments:
+  name: Base Environment
+  meta:
+    id: env_c6456a23fa39ee25547dec5094b765dd8f346b7e
+    created: 1765834403430
+    modified: 1765834810492
+    isPrivate: false
+  data:
+    base_url: http://localhost:8080/
+    token: "{% response 'body', 'req_e026f05b85514d58984bc915d38e289a',
+      'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+    order_id: "{% response 'body', 'req_45c98f38274f41e98d92bac4e8a60ab0',
+      'b64::JC5pZA==::46b', 'never', 60 %}"
