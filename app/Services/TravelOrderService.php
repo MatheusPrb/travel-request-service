@@ -4,7 +4,8 @@ namespace App\Services;
 
 use App\Constants\Messages;
 use App\Contracts\TravelOrderRepositoryInterface;
-use App\Exceptions\CannotCancelApprovedOrderException;
+use App\Enums\TravelOrderStatus;
+use App\Exceptions\InvalidStatusTransitionException;
 use App\Exceptions\InvalidTravelDatesException;
 use App\Exceptions\NotFoundException;
 use App\Models\TravelOrder;
@@ -49,9 +50,15 @@ class TravelOrderService
     public function updateStatus(string $id, string $newStatus): TravelOrder
     {
         $travelOrder = $this->repository->findById($id);
+        $currentStatus = TravelOrderStatus::tryFrom($travelOrder->status);
+        $newStatusEnum = TravelOrderStatus::tryFrom($newStatus);
 
-        if ($newStatus === 'cancelado' && $travelOrder->status === 'aprovado') {
-            throw new CannotCancelApprovedOrderException(Messages::CANNOT_CANCEL_APPROVED_ORDER);
+        if (!$currentStatus || !$newStatusEnum) {
+            throw new InvalidStatusTransitionException(Messages::INVALID_STATUS_UPDATE);
+        }
+
+        if (!$currentStatus->canTransitionTo($newStatusEnum)) {
+            throw new InvalidStatusTransitionException(Messages::INVALID_STATUS_UPDATE);
         }
 
         return $this->repository->update($travelOrder, ['status' => $newStatus]);

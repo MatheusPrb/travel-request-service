@@ -492,9 +492,9 @@ class TravelOrderTest extends TestCase
         );
 
         $response
-            ->assertStatus(422)
+            ->assertStatus(409)
             ->assertJson([
-                'error' => Messages::CANNOT_CANCEL_APPROVED_ORDER,
+                'error' => Messages::INVALID_STATUS_UPDATE,
             ])
         ;
 

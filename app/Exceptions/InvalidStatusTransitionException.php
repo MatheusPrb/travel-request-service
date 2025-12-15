@@ -4,7 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 
-class CannotCancelApprovedOrderException extends Exception
+class InvalidStatusTransitionException extends Exception
 {
     public function __construct(string $message)
     {
