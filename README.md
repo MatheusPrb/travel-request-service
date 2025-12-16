@@ -159,9 +159,11 @@ docker compose exec app php artisan migrate
 # 5. (Opcional) Popular banco de dados
 docker compose exec app php artisan db:seed
 
-# 6. Iniciar worker de filas
+# 6. Iniciar worker de filas (necessário para processar notificações por email)
 docker compose exec app php artisan queue:work
 ```
+
+> **⚠️ IMPORTANTE**: O worker de filas deve estar rodando para que os emails sejam enviados quando o status de um pedido mudar para `aprovado` ou `cancelado`. Sem ele, os emails ficarão na fila e não serão processados.
 
 ### Acessando a Aplicação
 
