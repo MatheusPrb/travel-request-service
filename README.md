@@ -217,8 +217,7 @@ Acesse http://localhost:8082
    - `base_url`: http://localhost:8080
    - `token`: preenchido após login
    - `travel_order_id`: preenchido ao criar pedido
-
-
+   ---
    > **⚠️ Atenção**: Caso alguma variável não funcione corretamente após a importação, você pode configurá-la manualmente em "Manage Environments" → "Base Environment". Certifique-se de que as variáveis estão definidas corretamente antes de executar as requisições.
 
 #### Postman
