@@ -2,6 +2,8 @@
 
 namespace Tests;
 
+use App\DTO\TravelOrderDTO;
+use App\Models\TravelOrder;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -81,5 +83,21 @@ abstract class TestCase extends BaseTestCase
             'user' => $admin,
             'token' => $token,
         ];
+    }
+
+    public function makeDTO(TravelOrder $order): TravelOrderDTO
+    {
+        return new TravelOrderDTO(
+            id: $order->id,
+            status: $order->status,
+            userId: $order->user_id,
+            destination: $order->destination,
+            departureDate: (string) $order->departure_date,
+            returnDate: (string) $order->return_date,
+            userEmail: $order->user->email ?? null,
+            userName: $order->user->name ?? null,
+            createdAt: (string) $order->created_at,
+            updatedAt: (string) $order->updated_at,
+        );
     }
 }

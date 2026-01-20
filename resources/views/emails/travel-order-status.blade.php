@@ -111,7 +111,7 @@
 
         <div class="message">
             <h2>{{ $statusMessage }}</h2>
-            <p>Olá {{ $user->name }},</p>
+            <p>Olá {{ $travelOrder->userName }},</p>
             <p>Informamos que o status do seu pedido de viagem foi atualizado.</p>
         </div>
 
@@ -125,12 +125,12 @@
             
             <div class="detail-row">
                 <span class="detail-label">Data de Partida:</span>
-                <span class="detail-value">{{ $travelOrder->departure_date->format('d/m/Y') }}</span>
+                <span class="detail-value">{{ \App\Helpers\DateHelper::formatDate($travelOrder->departureDate, 'd/m/Y') }}</span>
             </div>
             
             <div class="detail-row">
                 <span class="detail-label">Data de Retorno:</span>
-                <span class="detail-value">{{ $travelOrder->return_date->format('d/m/Y') }}</span>
+                <span class="detail-value">{{ \App\Helpers\DateHelper::formatDate($travelOrder->returnDate, 'd/m/Y') }}</span>
             </div>
             
             <div class="detail-row">
@@ -142,7 +142,7 @@
             
             <div class="detail-row">
                 <span class="detail-label">Data da Solicitação:</span>
-                <span class="detail-value">{{ $travelOrder->created_at->format('d/m/Y H:i') }}</span>
+                <span class="detail-value">{{ \App\Helpers\DateHelper::formatDate($travelOrder->createdAt, 'd/m/Y H:i') }}</span>
             </div>
         </div>
 

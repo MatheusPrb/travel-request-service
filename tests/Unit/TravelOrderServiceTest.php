@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Constants\Messages;
 use App\Contracts\TravelOrderRepositoryInterface;
+use App\DTO\TravelOrderDTO;
 use App\Exceptions\InvalidTravelDatesException;
 use App\Exceptions\NotFoundException;
 use App\Models\TravelOrder;
@@ -43,17 +44,18 @@ class TravelOrderServiceTest extends TestCase
         ];
 
         $travelOrder = TravelOrder::factory()->make($data);
+        $dto = $this->makeDTO($travelOrder);
 
         $this->repository
             ->shouldReceive('create')
             ->once()
             ->with($data)
-            ->andReturn($travelOrder)
+            ->andReturn($dto)
         ;
 
         $result = $this->service->create($data);
 
-        $this->assertInstanceOf(TravelOrder::class, $result);
+        $this->assertInstanceOf(TravelOrderDTO::class, $result);
         $this->assertEquals($data['destination'], $result->destination);
     }
 
@@ -119,17 +121,18 @@ class TravelOrderServiceTest extends TestCase
         ];
 
         $travelOrder = TravelOrder::factory()->make($data);
+        $dto = $this->makeDTO($travelOrder);
 
         $this->repository
             ->shouldReceive('create')
             ->once()
             ->with($data)
-            ->andReturn($travelOrder)
+            ->andReturn($dto)
         ;
 
         $result = $this->service->create($data);
 
-        $this->assertInstanceOf(TravelOrder::class, $result);
+        $this->assertInstanceOf(TravelOrderDTO::class, $result);
     }
 
     public function test_list_by_user_returns_only_user_orders(): void
@@ -189,6 +192,7 @@ class TravelOrderServiceTest extends TestCase
             'id' => $travelOrderId,
             'user_id' => $user['user']->id
         ]);
+        $dto = $this->makeDTO($travelOrder);
 
         $this->repository
             ->shouldReceive('belongsToUser')
@@ -201,12 +205,12 @@ class TravelOrderServiceTest extends TestCase
             ->shouldReceive('findById')
             ->once()
             ->with($travelOrderId)
-            ->andReturn($travelOrder)
+            ->andReturn($dto)
         ;
 
         $result = $this->service->findById($travelOrderId, $user['user']->id);
 
-        $this->assertInstanceOf(TravelOrder::class, $result);
+        $this->assertInstanceOf(TravelOrderDTO::class, $result);
         $this->assertEquals($travelOrderId, $result->id);
     }
 

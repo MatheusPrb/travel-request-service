@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Helpers\DateHelper;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,13 +18,13 @@ class TravelOrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'requester_name' => $this->user->name,
+            'requester_name' => $this->userName,
             'destination' => $this->destination,
-            'departure_date' => $this->departure_date->format('Y-m-d'),
-            'return_date' => $this->return_date->format('Y-m-d'),
+            'departure_date' => DateHelper::formatDate($this->departureDate, 'Y-m-d'),
+            'return_date' => DateHelper::formatDate($this->returnDate, 'Y-m-d'),
             'status' => $this->status,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'created_at' => DateHelper::formatDate($this->createdAt, 'Y-m-d H:i:s'),
+            'updated_at' => DateHelper::formatDate($this->updatedAt, 'Y-m-d H:i:s'),
         ];
     }
 }

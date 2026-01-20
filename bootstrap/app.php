@@ -1,9 +1,7 @@
 <?php
 
 use App\Constants\Messages;
-use App\Exceptions\InvalidStatusTransitionException;
-use App\Exceptions\InvalidTravelDatesException;
-use App\Exceptions\NotFoundException;
+use App\Exceptions\DomainException;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -38,21 +36,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 401);
         });
 
-        $exceptions->render(function (InvalidTravelDatesException $e) {
+        $exceptions->render(function (DomainException $e) {
             return response()->json([
-                'error' => $e->getMessage()
-            ], 422);
+                'error' => $e->getMessage(),
+            ], $e->getStatusCode());
         });
-
-        $exceptions->render(function (InvalidStatusTransitionException $e) {
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 409);
-        });
-
-        $exceptions->render(function (NotFoundException $e) {
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 404);
-        });
+        
     })->create();

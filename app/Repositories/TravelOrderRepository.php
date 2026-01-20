@@ -4,24 +4,25 @@ namespace App\Repositories;
 
 use App\Contracts\TravelOrderRepositoryInterface;
 use App\Models\TravelOrder;
+use App\DTO\TravelOrderDTO;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class TravelOrderRepository implements TravelOrderRepositoryInterface
 {
-    public function create(array $data): TravelOrder
+    public function create(array $data): TravelOrderDTO
     {
         $order = TravelOrder::create($data);
         $order->loadMissing('user');
 
-        return $order;
+        return $this->toDTO($order);
     }
 
-    public function findById(string $id): TravelOrder
+    public function findById(string $id): TravelOrderDTO
     {
         $order = TravelOrder::findOrFail($id);
         $order->loadMissing('user');
 
-        return $order;
+        return $this->toDTO($order);
     }
 
     public function findByUserId(string $userId, array $filters = []): LengthAwarePaginator
@@ -57,6 +58,7 @@ class TravelOrderRepository implements TravelOrderRepositoryInterface
         return $query->with('user')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
+            ->through(fn (TravelOrder $order) => $this->toDTO($order))
         ;
     }
 
@@ -68,12 +70,29 @@ class TravelOrderRepository implements TravelOrderRepositoryInterface
         ;
     }
 
-    public function update(TravelOrder $travelOrder, array $data): TravelOrder
+    public function update(TravelOrderDTO $travelOrder, array $data): TravelOrderDTO
     {
-        $travelOrder->update($data);
+        $order = TravelOrder::findOrFail($travelOrder->id);
+        $order->update($data);
 
-        $travelOrder->loadMissing('user');
+        $order->loadMissing('user');
 
-        return $travelOrder;
+        return $this->toDTO($order);
+    }
+
+    private function toDTO(TravelOrder $model): TravelOrderDTO
+    {
+        return new TravelOrderDTO(
+            id: $model->id,
+            status: $model->status,
+            userId: $model->user_id,
+            destination: $model->destination,
+            departureDate: $model->departure_date,
+            returnDate: $model->return_date,
+            userEmail: $model->user->email,
+            userName: $model->user->name,
+            createdAt: $model->created_at,
+            updatedAt: $model->updated_at,
+        );
     }
 }
