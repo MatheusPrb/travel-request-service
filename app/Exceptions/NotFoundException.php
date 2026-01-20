@@ -2,12 +2,7 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class NotFoundException extends Exception
+class NotFoundException extends DomainException
 {
-    public function __construct(string $message)
-    {
-        parent::__construct($message);
-    }
+    protected int $statusCode = 404;
 }
