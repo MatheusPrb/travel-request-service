@@ -40,28 +40,28 @@ API RESTful para gerenciamento de solicitações de viagem com as seguintes func
 ### Padrões Arquiteturais
 
 #### Repository Pattern
-Abstração da camada de acesso a dados através de interfaces (`TravelOrderRepositoryInterface`), facilitando testes e permitindo troca de implementação sem afetar o Service Layer.
+- Abstração da camada de acesso a dados através de interfaces (`TravelOrderRepositoryInterface`), facilitando testes e permitindo troca de implementação sem afetar o Service Layer.
 
 #### Service Layer
-Encapsula toda a lógica de negócio (`TravelOrderService`), mantendo controllers leves e focados apenas em HTTP. Inclui validações de regras de negócio e orquestração de operações complexas.
+- Encapsula toda a lógica de negócio (`TravelOrderService`), mantendo controllers leves e focados apenas em HTTP. Inclui validações de regras de negócio e orquestração de operações complexas.
 
 #### Resource Layer
-Formatação consistente de respostas JSON através de Resources (`TravelOrderResource`, `AuthResource`), garantindo controle total sobre o formato de saída.
+- Formatação consistente de respostas JSON através de Resources (`TravelOrderResource`, `AuthResource`), garantindo controle total sobre o formato de saída.
 
 #### Form Request Validation
-Validação centralizada através de Form Requests customizados (`BaseFormRequest`), com mensagens de erro personalizadas e validações específicas por endpoint.
+- Validação centralizada através de Form Requests customizados (`BaseFormRequest`), com mensagens de erro personalizadas e validações específicas por endpoint.
 
 #### Enum para Status
-Uso de Enum PHP 8.1+ (`TravelOrderStatus`) com método `canUpdateTo()` para validação de transições válidas, garantindo type-safety.
+- Uso de Enum PHP 8.1+ (`TravelOrderStatus`) com método `canUpdateTo()` para validação de transições válidas, garantindo type-safety.
 
 #### Exceções Customizadas
-Tratamento granular de erros com exceções específicas (`NotFoundException`, `InvalidStatusTransitionException`, `InvalidTravelDatesException`) e códigos HTTP apropriados.
+- Tratamento granular de erros com exceções específicas (`NotFoundException`, `InvalidStatusTransitionException`, `InvalidTravelDatesException`) e códigos HTTP apropriados.
 
 #### Middleware Customizado
-Middleware `EnsureUserIsAdmin` para verificação de permissões, reutilizável em múltiplas rotas.
+- Middleware `EnsureUserIsAdmin` para verificação de permissões, reutilizável em múltiplas rotas.
 
 #### Notificações Assíncronas
-Envio de emails via filas (Redis) para processamento em background, garantindo resposta HTTP rápida e retry automático.
+- Envio de emails via filas (Redis) para processamento em background, garantindo resposta HTTP rápida e retry automático.
 
 ### Estrutura de Pastas
 
@@ -112,6 +112,9 @@ app/
    APP_DEBUG=true
    APP_URL=http://localhost:8080
 
+   # --------------------
+   # DATABASE
+   # --------------------
    DB_CONNECTION=mysql
    DB_HOST=mysql
    DB_PORT=3306
@@ -119,13 +122,17 @@ app/
    DB_USERNAME=admin
    DB_PASSWORD=admin
 
-   JWT_TTL=60
-
+   # --------------------
+   # MAIL (MAILHOG)
+   # --------------------
    MAIL_MAILER=smtp
    MAIL_HOST=mailhog
    MAIL_PORT=1025
    MAIL_FROM_ADDRESS="noreply@travel-request.local"
 
+   # --------------------
+   # QUEUE / REDIS
+   # --------------------
    QUEUE_CONNECTION=redis
    REDIS_HOST=redis
    REDIS_PORT=6379
@@ -137,24 +144,26 @@ app/
 
 ```bash
 # 1. Construir e iniciar containers
-docker-compose up -d --build
+docker compose up -d --build
 
 # 2. Instalar dependências
-docker-compose exec app composer install
+docker compose exec app composer install
 
 # 3. Gerar chaves
-docker-compose exec app php artisan key:generate
-docker-compose exec app php artisan jwt:secret
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan jwt:secret
 
 # 4. Executar migrations
-docker-compose exec app php artisan migrate
+docker compose exec app php artisan migrate
 
 # 5. (Opcional) Popular banco de dados
-docker-compose exec app php artisan db:seed
+docker compose exec app php artisan db:seed
 
-# 6. Iniciar worker de filas
-docker-compose exec app php artisan queue:work
+# 6. Iniciar worker de filas (necessário para processar notificações por email)
+docker compose exec app php artisan queue:work
 ```
+
+> **⚠️ IMPORTANTE**: O worker de filas deve estar rodando para que os emails sejam enviados quando o status de um pedido mudar para `aprovado` ou `cancelado`. Sem ele, os emails ficarão na fila e não serão processados.
 
 ### Acessando a Aplicação
 
@@ -179,7 +188,7 @@ O projeto possui testes automatizados usando PHPUnit, cobrindo autenticação JW
 ### Executando Testes
 
 ```bash
-docker-compose exec app php artisan test
+docker compose exec app php artisan test
 # ou
 ./run-test.sh
 ```
@@ -210,6 +219,8 @@ Acesse http://localhost:8082
    - `base_url`: http://localhost:8080
    - `token`: preenchido após login
    - `travel_order_id`: preenchido ao criar pedido
+   ---
+   > **⚠️ Atenção**: Caso alguma variável não funcione corretamente após a importação, você pode configurá-la manualmente em "Manage Environments" → "Base Environment". Certifique-se de que as variáveis estão definidas corretamente antes de executar as requisições.
 
 #### Postman
 
@@ -307,4 +318,4 @@ Este projeto está sob a licença MIT.
 
 ---
 
-**Desenvolvido com ❤️ usando Laravel 12.0**
+**Desenvolvido usando Laravel 12.0**

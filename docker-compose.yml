@@ -17,6 +17,8 @@ services:
       - mysql
       - redis
       - mailhog
+    entrypoint: ["/var/www/docker-entrypoint.sh"]
+    command: ["php-fpm"]
 
   nginx:
     image: nginx:latest

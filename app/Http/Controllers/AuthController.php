@@ -45,7 +45,7 @@ class AuthController extends Controller
 
     public function logout(): JsonResponse
     {
-        JWTAuth::invalidate(JWTAuth::getToken());
+        JWTAuth::parseToken()->invalidate();
 
         return response()->json([
             'message' => Messages::LOGOUT_SUCCESS
