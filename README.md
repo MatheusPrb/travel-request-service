@@ -242,8 +242,10 @@ travel-request-service/
 ├── app/
 │   ├── Constants/              # Constantes (mensagens)
 │   ├── Contracts/              # Interfaces (Repository)
+│   ├── DTO/                    # Data Transfer Objects
 │   ├── Enums/                  # Enumeradores
 │   ├── Exceptions/             # Exceções customizadas
+│   ├── Helpers/                # Helpers / Utilitários
 │   ├── Http/
 │   │   ├── Controllers/        # Controllers
 │   │   ├── Middleware/         # Middlewares
