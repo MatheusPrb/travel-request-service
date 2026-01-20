@@ -69,8 +69,10 @@ API RESTful para gerenciamento de solicitações de viagem com as seguintes func
 app/
 ├── Constants/          # Constantes (mensagens)
 ├── Contracts/          # Interfaces (Repository Pattern)
+├── DTO/                # Data Transfer Objects
 ├── Enums/              # Enumeradores (Status)
 ├── Exceptions/         # Exceções customizadas
+├── Helpers/            # Helpers / Utilitários
 ├── Http/
 │   ├── Controllers/    # Controllers HTTP
 │   ├── Middleware/     # Middlewares customizados
