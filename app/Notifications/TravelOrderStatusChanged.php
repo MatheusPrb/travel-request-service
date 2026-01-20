@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\TravelOrder;
+use App\DTO\TravelOrderDTO;
 use App\Enums\TravelOrderStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,11 +13,11 @@ class TravelOrderStatusChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private TravelOrder $travelOrder;
+    private TravelOrderDTO $travelOrder;
     private TravelOrderStatus $newStatus;
     public $tries = 3;
 
-    public function __construct(TravelOrder $travelOrder)
+    public function __construct(TravelOrderDTO $travelOrder)
     {
         $this->travelOrder = $travelOrder;
         $this->newStatus = TravelOrderStatus::tryFrom($travelOrder->status);
@@ -40,7 +40,6 @@ class TravelOrderStatusChanged extends Notification implements ShouldQueue
                 'status' => $this->newStatus->value,
                 'statusMessage' => $statusMessage,
                 'statusColor' => $statusColor,
-                'user' => $notifiable,
             ]);
     }
 
@@ -62,7 +61,7 @@ class TravelOrderStatusChanged extends Notification implements ShouldQueue
         };
     }
 
-    public function getTravelOrder(): TravelOrder
+    public function getTravelOrder(): TravelOrderDTO
     {
         return $this->travelOrder;
     }

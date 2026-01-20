@@ -8,10 +8,11 @@ use App\Enums\TravelOrderStatus;
 use App\Exceptions\InvalidStatusTransitionException;
 use App\Exceptions\InvalidTravelDatesException;
 use App\Exceptions\NotFoundException;
-use App\Models\TravelOrder;
+use App\DTO\TravelOrderDTO;
 use App\Notifications\TravelOrderStatusChanged;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Notification;
 
 class TravelOrderService
 {
@@ -22,7 +23,7 @@ class TravelOrderService
         $this->repository = $repository;
     }
 
-    public function create(array $data): TravelOrder
+    public function create(array $data): TravelOrderDTO
     {
         $departureDate = Carbon::parse($data['departure_date']);
         $returnDate = Carbon::parse($data['return_date']);
@@ -39,7 +40,7 @@ class TravelOrderService
         return $this->repository->findByUserId($userId, $filters);
     }
 
-    public function findById(string $id, string $userId): TravelOrder
+    public function findById(string $id, string $userId): TravelOrderDTO
     {
         if (!$this->repository->belongsToUser($id, $userId)) {
             throw new NotFoundException(Messages::TRAVEL_ORDER_NOT_FOUND);
@@ -48,7 +49,7 @@ class TravelOrderService
         return $this->repository->findById($id);
     }
 
-    public function updateStatus(string $id, string $newStatus): TravelOrder
+    public function updateStatus(string $id, string $newStatus): TravelOrderDTO
     {
         $travelOrder = $this->repository->findById($id);
         $currentStatus = TravelOrderStatus::tryFrom($travelOrder->status);
@@ -75,8 +76,10 @@ class TravelOrderService
         return $updatedTravelOrder;
     }
 
-    public function notifyUser(TravelOrder $travelOrder): void
+    public function notifyUser(TravelOrderDTO $travelOrder): void
     {
-        $travelOrder->user->notify(new TravelOrderStatusChanged($travelOrder));
+        Notification::route('mail', $travelOrder->userEmail)
+            ->notify(new TravelOrderStatusChanged($travelOrder))
+        ;
     }
 }

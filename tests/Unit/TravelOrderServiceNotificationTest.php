@@ -46,28 +46,31 @@ class TravelOrderServiceNotificationTest extends TestCase
         ]);
         $updatedTravelOrder->setRelation('user', $user);
 
+        $travelOrderDto = $this->makeDTO($travelOrder);
+        $updatedDto = $this->makeDTO($updatedTravelOrder);
+
         $this->repository
             ->shouldReceive('findById')
             ->once()
             ->with($travelOrder->id)
-            ->andReturn($travelOrder)
+            ->andReturn($travelOrderDto)
         ;
 
         $this->repository
             ->shouldReceive('update')
             ->once()
-            ->with($travelOrder, ['status' => TravelOrderStatus::APPROVED->value])
-            ->andReturn($updatedTravelOrder)
+            ->with($travelOrderDto, ['status' => TravelOrderStatus::APPROVED->value])
+            ->andReturn($updatedDto)
         ;
 
         $this->service->updateStatus($travelOrder->id, TravelOrderStatus::APPROVED->value);
 
-        Notification::assertSentTo(
-            $user,
+        Notification::assertSentOnDemand(
             TravelOrderStatusChanged::class,
-            function ($notification, $channels) use ($updatedTravelOrder) {
-                return $notification->getTravelOrder()->id === $updatedTravelOrder->id
-                    && in_array('mail', $channels);
+            function ($notification, $channels, $notifiable) use ($updatedDto, $user) {
+                return $notification->getTravelOrder()->id === $updatedDto->id
+                    && in_array('mail', $channels)
+                    && $notifiable->routes['mail'] === $user->email;
             }
         );
     }
@@ -80,11 +83,16 @@ class TravelOrderServiceNotificationTest extends TestCase
         ]);
         $travelOrder->setRelation('user', $user);
 
-        $this->service->notifyUser($travelOrder);
+        $dto = $this->makeDTO($travelOrder);
 
-        Notification::assertSentTo(
-            $user,
-            TravelOrderStatusChanged::class
+        $this->service->notifyUser($dto);
+
+        Notification::assertSentOnDemand(
+            TravelOrderStatusChanged::class,
+            function ($notification, $channels, $notifiable) use ($user) {
+                return in_array('mail', $channels)
+                    && $notifiable->routes['mail'] === $user->email;
+            }
         );
     }
 
@@ -101,25 +109,27 @@ class TravelOrderServiceNotificationTest extends TestCase
         ]);
         $updatedTravelOrder->setRelation('user', $user);
 
+        $travelOrderDto = $this->makeDTO($travelOrder);
+        $updatedDto = $this->makeDTO($updatedTravelOrder);
+
         $this->repository
             ->shouldReceive('findById')
             ->once()
-            ->andReturn($travelOrder)
+            ->andReturn($travelOrderDto)
         ;
 
         $this->repository
             ->shouldReceive('update')
             ->once()
-            ->andReturn($updatedTravelOrder)
+            ->andReturn($updatedDto)
         ;
 
         $this->service->updateStatus($travelOrder->id, TravelOrderStatus::CANCELED->value);
 
-        Notification::assertSentTo(
-            $user,
+        Notification::assertSentOnDemand(
             TravelOrderStatusChanged::class,
-            function ($notification) use ($updatedTravelOrder) {
-                return $notification->getTravelOrder()->status === $updatedTravelOrder->status;
+            function ($notification) use ($updatedDto) {
+                return $notification->getTravelOrder()->status === $updatedDto->status;
             }
         );
     }

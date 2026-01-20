@@ -2,12 +2,7 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class InvalidStatusTransitionException extends Exception
+class InvalidStatusTransitionException extends DomainException
 {
-    public function __construct(string $message)
-    {
-        parent::__construct($message);
-    }
+    protected int $statusCode = 409;
 }
