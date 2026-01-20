@@ -20,11 +20,11 @@ class TravelOrderResource extends JsonResource
             'id' => $this->id,
             'requester_name' => $this->userName,
             'destination' => $this->destination,
-            'departure_date' => DateHelper::formatDate($this->departureDate),
-            'return_date' => DateHelper::formatDate($this->returnDate),
+            'departure_date' => DateHelper::formatDate($this->departureDate, 'Y-m-d'),
+            'return_date' => DateHelper::formatDate($this->returnDate, 'Y-m-d'),
             'status' => $this->status,
-            'created_at' => DateHelper::formatDate($this->createdAt),
-            'updated_at' => DateHelper::formatDate($this->updatedAt),
+            'created_at' => DateHelper::formatDate($this->createdAt, 'Y-m-d H:i:s'),
+            'updated_at' => DateHelper::formatDate($this->updatedAt, 'Y-m-d H:i:s'),
         ];
     }
 }

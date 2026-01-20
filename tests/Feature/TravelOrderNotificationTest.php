@@ -36,12 +36,13 @@ class TravelOrderNotificationTest extends TestCase
 
         $response->assertStatus(200);
 
-        Notification::assertSentTo(
-            $user,
+        Notification::assertSentOnDemand(
             TravelOrderStatusChanged::class,
-            function ($notification) use ($travelOrder) {
+            function ($notification, $channels, $notifiable) use ($travelOrder, $user) {
                 return $notification->getTravelOrder()->id === $travelOrder->id
                     && $notification->getNewStatus() === TravelOrderStatus::APPROVED
+                    && in_array('mail', $channels)
+                    && $notifiable->routes['mail'] === $user->email
                 ;
             }
         );
@@ -63,7 +64,13 @@ class TravelOrderNotificationTest extends TestCase
             $this->getAuthHeaders($admin['token'])
         );
 
-        Notification::assertSentTo($user, TravelOrderStatusChanged::class);
+        Notification::assertSentOnDemand(
+            TravelOrderStatusChanged::class,
+            function ($notification, $channels, $notifiable) use ($user) {
+                return in_array('mail', $channels)
+                    && $notifiable->routes['mail'] === $user->email;
+            }
+        );
     }
 
     public function test_notification_is_sent_when_status_changes_to_canceled(): void
@@ -81,7 +88,13 @@ class TravelOrderNotificationTest extends TestCase
             $this->getAuthHeaders($admin['token'])
         );
 
-        Notification::assertSentTo($user, TravelOrderStatusChanged::class);
+        Notification::assertSentOnDemand(
+            TravelOrderStatusChanged::class,
+            function ($notification, $channels, $notifiable) use ($user) {
+                return in_array('mail', $channels)
+                    && $notifiable->routes['mail'] === $user->email;
+            }
+        );
     }
 
     public function test_notification_contains_correct_travel_order_information(): void
@@ -97,17 +110,18 @@ class TravelOrderNotificationTest extends TestCase
             $this->getAuthHeaders($admin['token'])
         );
 
-        Notification::assertSentTo(
-            $user,
+        Notification::assertSentOnDemand(
             TravelOrderStatusChanged::class,
-            function ($notification) use ($travelOrder, $user) {
+            function ($notification, $channels, $notifiable) use ($travelOrder, $user) {
                 $mailMessage = $notification->toMail($user);
                 $viewData = $mailMessage->viewData;
 
                 return $viewData['travelOrder']->destination === $travelOrder->destination
                     && $viewData['travelOrder']->id === $travelOrder->id
                     && $viewData['status'] === TravelOrderStatus::APPROVED->value
-                    && $viewData['user']->id === $user->id
+                    && $viewData['travelOrder']->userName === $user->name
+                    && in_array('mail', $channels)
+                    && $notifiable->routes['mail'] === $user->email
                 ;
             }
         );
@@ -129,8 +143,7 @@ class TravelOrderNotificationTest extends TestCase
             $this->getAuthHeaders($admin['token'])
         );
 
-        Notification::assertSentTo(
-            $user,
+        Notification::assertSentOnDemand(
             TravelOrderStatusChanged::class,
             function ($notification) use ($user, $travelOrder) {
                 $mailMessage = $notification->toMail($user);
@@ -157,9 +170,11 @@ class TravelOrderNotificationTest extends TestCase
             $this->getAuthHeaders($admin['token'])
         );
 
-        Notification::assertSentTo($user, TravelOrderStatusChanged::class);
-
-        $notifications = Notification::sent($user, TravelOrderStatusChanged::class);
-        $this->assertInstanceOf(ShouldQueue::class, $notifications[0]);
+        Notification::assertSentOnDemand(
+            TravelOrderStatusChanged::class,
+            function ($notification) {
+                return $notification instanceof ShouldQueue;
+            }
+        );
     }
 }
